@@ -18,48 +18,53 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/main_qr_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/main_erweima"
                 android:textSize="20dp"
-                android:textColor="#ff000000"
+                android:textColor="@color/Main_Activity_TextColor"
                 android:gravity="center"/>
 
-            <TextView
+            <Button
+                android:id="@+id/main_prime_page"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:text="首页"
                 android:textSize="20dp"
-                android:textColor="#ff000000"
+                android:textColor="@color/Main_Activity_TextColor"
                 android:gravity="center" />
 
-            <TextView
+            <Button
+                android:id="@+id/main_goods"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:text="商城"
                 android:textSize="20dp"
-                android:textColor="#ff000000"
+                android:textColor="@color/Main_Activity_TextColor"
                 android:gravity="center"/>
 
-            <TextView
+            <Button
+                android:id="@+id/main_home_page"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:text="矿车"
                 android:textSize="20dp"
-                android:textColor="#ff000000"
+                android:textColor="@color/Main_Activity_TextColor"
                 android:gravity="center" />
 
             <ImageButton
+                android:id="@+id/main_search"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/main_sousuo"
                 android:textSize="20dp"
-                android:textColor="#ff000000"/>
+                android:textColor="@color/Main_Activity_TextColor"/>
 
         </LinearLayout>
 

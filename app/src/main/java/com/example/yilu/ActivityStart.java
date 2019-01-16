@@ -19,16 +19,16 @@ public class ActivityStart extends AppCompatActivity {
         iniInitialize();
         iniClick();//绑定监听事件
     }
-
+    //实例化组件
     public  void iniInitialize(){
         listener = new MianClickListener();
         start = (Button) findViewById(R.id.start);
     }
-
+    //绑定点击事件
     public void iniClick(){
         start.setOnClickListener(listener);
     }
-
+    //实现监听类
     public class MianClickListener implements View.OnClickListener {
 
         @Override
