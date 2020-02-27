@@ -1,7 +1,13 @@
-# android-intangible-cultural-heritage-mall
-壹路非遗商城源码
+# android-interviews-res
+- 各大机构内部培训资料汇总
+- 自己 fork、star 请勿泄露
 
-这个项目原先是拿去打挑战杯的,写了一大半给导师否了 /心碎
+# 目录
+- []()
+- []()
+- []()
+- []()
+- []()
+- []()
 
-所以公开出来给大家看希望有所帮助
-
+# LICENSE
