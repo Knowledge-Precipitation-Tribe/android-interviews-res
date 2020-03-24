@@ -1,6 +1,51 @@
-# android-interviews-res
+#  android-interviews-res
 
-各大培训机构资源汇总
+- 各大培训机构资源学习进度
+
+- 当前学的题目
+
+
+
+## Android
+
+- View 滑动机制 ⭐️⭐️⭐️
+- View 的事件分发机制 ⭐️⭐️⭐️
+- View 的加载流程 ⭐️⭐️⭐️
+- 
+
+
+
+ ## Java
+
+- java 中 == 和 equals 和 hashcode 的区别⭐️
+- int、char、long 各占多少字节数⭐️
+- int 和 Integer 的区别⭐️
+- 谈谈对 Java 多态的理解⭐️
+- String、StringBuffer、StringBuilder 区别⭐️
+
+
+
+## 计网
+
+
+
+
+
+## 算法
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # MIT License
 
