@@ -8,20 +8,20 @@
 
 ## Android
 
-- View 滑动机制 ⭐️⭐️⭐️
-- View 的事件分发机制 ⭐️⭐️⭐️
-- View 的加载流程 ⭐️⭐️⭐️
+- View 滑动机制 ⭐️⭐️⭐️⭐️
+- View 的事件分发机制 ⭐️⭐️⭐️⭐️
+- View 的加载流程 ⭐️⭐️⭐️⭐️
 - 
 
 
 
  ## Java
 
-- java 中 == 和 equals 和 hashcode 的区别⭐️
-- int、char、long 各占多少字节数⭐️
-- int 和 Integer 的区别⭐️
-- 谈谈对 Java 多态的理解⭐️
-- String、StringBuffer、StringBuilder 区别⭐️
+- java 中 == 和 equals 和 hashcode 的区别⭐️⭐️
+- int、char、long 各占多少字节数⭐️⭐️
+- int 和 Integer 的区别⭐️⭐️
+- 谈谈对 Java 多态的理解⭐️⭐️
+- String、StringBuffer、StringBuilder 区别⭐️⭐️
 
 
 
