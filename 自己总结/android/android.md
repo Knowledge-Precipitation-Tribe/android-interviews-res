@@ -46,13 +46,21 @@
 
 #### service 两种启动模式，区别
 
-
+- 第一种是采用 startService 的方式，先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 startServive(intent) 开启，不用时调用 stopService(intent) 停止。
+  - 所以其生命周期是 onCreate - onStartCommand - onDestroy，由于 onStart 已经过时，所以现在都是调用 onStartCommand。
+  - 注意已启动的 Service 不会再调用 onCreate 而是直接 onStartCommand，也从侧面说明，这种服务一旦启动酒喝调用者没有关系了，调用者也无法获取它的方法，除非调用 stopService 他会在后台一直跑
+- 第二种是通过 BindService 绑定服务，其过程还是先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 bindService(intent, ServieConnection ,int) 开启，不用时调用 unBindService(ServiceConnection) 停止。
+  - 它的生命周期是 onCreate - onBind - onUnBind - onDestroy，与 startService 启动不同，如果绑定者销毁了，它会自动 unBind 并销毁
+  - 并且 onBind 会返回一个 Binder 对象，而这个 Binder 对象我们可以在 Service 里自定义，然后在 onBind 里放回，由于调用者绑定时需要传入实现 ServieConnection 接口的类或内部类，所以会在这个内部类的 onServiceConnected 回调里，获得 Service 对象，强转下即可使用
+- 注意：一个调用了 startServive 服务，如果被任意调用者绑定，那么 stopService 就无法关闭，必须先解绑才能成功 stopService
 
 
 
 #### Fragment 生命周期
 
+- 中间和 Activity 一样，就是前后多了绑定和解绑，也就是 **onAttach** - onCreate - **onCreateView - onActivityCreated** - onStart - onPause - onStop - **onViewDestroyed** - onDeatroy - **onDetach**
 
+- 
 
 
 
