@@ -1,64 +1,49 @@
+- Java内存布局
+  GC机制
+  集合框架
+  进程线程区别，进程消耗资源多原因
+  同步
+  死锁
+  IPC
+- ART Dalvik区别？
+- GC机制？
+- CountDownLatch原理?
 - [private protected public 关键字的用法区别](https://github.com/FishInWater-1999/android_interviews/blob/master/Java/private%20protected%20public%20%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E7%94%A8%E6%B3%95%E5%8C%BA%E5%88%AB.md)
-
 - [接口，抽象类区别？抽象类要不要实现接口的方法](https://github.com/FishInWater-1999/android_interviews/blob/master/Java/%E6%8E%A5%E5%8F%A3%EF%BC%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%8C%BA%E5%88%AB%EF%BC%9F%E6%8A%BD%E8%B1%A1%E7%B1%BB%E8%A6%81%E4%B8%8D%E8%A6%81%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%96%B9%E6%B3%95.md)
-
 - Map的线程安全？读多写少选哪个集合？(**CopyOnWrite，不懂原理没敢说**)
-
 - 进程 线程区别c
 - 子线程间通讯
 - 解决死锁的办法，怎么判断发生死锁
-
 - 用过哪些设计模式
 - 观察者举例
-
 - 图片压缩算法？ [聊聊关于Android图片压缩那点事儿](https://juejin.im/entry/59c07c936fb9a00a636a4471)  
-
 - Bitmap JPG区别 [图像处理：JPG、PNG及BMP的区别？](https://blog.csdn.net/u013841196/article/details/80517018)  
-
 - 断点重传？**怎么动态确定范围？** [Android 实现断点上传文件](https://technicalsearch.iteye.com/blog/2158915) RandomAccessFile 
-
 - 断点下载？**CRC原理** [文件校验MD5、SHA1、CRC32、sha256、cksum](https://blog.csdn.net/gsls200808/article/details/48844921)
-
 - **MVC优点缺点**
 - **MVP中的MVC的C实现在哪**
 - **单例模式的饿汉与懒汉的选择，使用场景**[Java单例模式的不同写法（懒汉式、饿汉式、双检锁、静态内部类、枚举）](https://blog.csdn.net/fly910905/article/details/79286680)
-
 - B线程怎么实现等待A线程完成工作 
-
 - 线程怎么结束工作 [Java结束线程的三种方法](https://blog.csdn.net/xu__cg/article/details/52831127)  
-
 - **Java哪些方法支持中断**  
-
--		**设计一个有限资源的请求**  
-
--		**怎么设计对象池（对象的存与放回）**  
-
--		线程池的线程什么时候创建 
-
--		Java中的锁 
-
+- **设计一个有限资源的请求**  
+- **怎么设计对象池（对象的存与放回）**  
+- 线程池的线程什么时候创建 
+- Java中的锁 
 - 可重入锁性能
-
 - 单例模式
 - volatile关键字原子性
-
 - **MVP MVVM使用场景**
-
 - 数组 链表区别
-
 - 进程/线程的通讯方式
 - ThreadLocal原理
 - 弱/软引用区别
-
 - **线程的状态**
 - **自旋和阻塞区别**
 - int型长度？与机器有关么？
 - 32位/64位系统指的是什么？
-
 - 用过哪些设计模式
-
 - 抽象 接口区别 
-
 - 哪几种集合，List Map区别 
 
 ​		哪几种集合，List Map区别 
