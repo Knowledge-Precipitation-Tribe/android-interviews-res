@@ -1,4 +1,4 @@
-## 存储
+## 一、存储
 
 
 
@@ -12,7 +12,7 @@
 
 
 
-## 四大组件
+## 二、四大组件
 
 
 
@@ -31,14 +31,88 @@
 
 
 
-## App 启动
 
-- ThreadLocal 
-- app启动流程
-- 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent返回false? 
+
+
+
+#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。
+
+- standard 普通
+- singleTop 栈顶复用
+- singleTask 栈内唯一
+- singleInstance 操作系统全局唯一
+- 
+
+
+
+
+
+## 三、service两种启动模式，区别
+
+
+
+#### Fragment 生命周期
+
+
+
+## 四、启动流程
+
+
+
+#### App 启动流程
+
+- 首先我们用户点击应用图标的时候，AMS 先会去检查系统中是否有支持该应用程序的进程，如果没有的话，择取通知 Zygote
+- Zygote 收到 AMS 发来的消息后，恢复 fork 自身，这样我们就获得到了一个虚拟机实例，紧接着为其创建 Binder 线程池和 Loop 消息循环，这样我们的 App 进程就出现了
+- 然后我们的进程会通过 Binder IPC 想我们的 system_server 发送一个 ATTACH_APPLICATION 消息，我们的 system_server 收到后，会先做一系列的准备，再向 ApplicationThread 发送 SHCHEDULE_LAUNCH_ACTIVITY 消息
+- 我们的 ApplicationThread 收到消息后，通过 Handler H 向主线程发送 LAUNCH_ACTIVITY 消息，主线程在收到消息后，会通过反射调用我们 Activity 的 onCreate 方法，至此就进入了我们 Activity 的生命周期
+
+
+
+#### [Activity 启动流程](https://blog.csdn.net/u010648159/article/details/81103092)
+
+- 首先，除了我们 App 启动流程中启动 Activity 的情况外，我们所谓的 Activity 启动流程，一般是指 Context 调用 startActivity 方法开始，到 Activity 最终显示在屏幕上的过程。
+- 然而我们 Context 调用 Activity 实际上是 ContextImpl 调用 startActivity ，它的内部会通过 Instrumentation 调用 execStartActivity 的过程，而这个 Instrumentation 则是一个在程序运行前初始化的，用来检测程序和操作系统之间交互的类
+- 其内部会调用  AMS 的 startActivity 方法，所以这实际上是一个跨进程通行的过程
+- 在我们 AMS 调用其 startActivity 方法之后，AMS 会去检查下目标 Activity 的合法性，在通过 ApplicationThred 回到我们的进程，而我们的 ApplicationThred 实际上就是一个 Binder，所以起本质上也是一个跨通信的过程
+- 最后由于 Android 的单线程模型，我们的所有 UI 操作都必须在主线程中执行，所以我们的 ActivityThread 需要向 Handler H 发送一个 LAUNCH_ACTIVUTY 消息，调用其 handleResumeActivity 方法，这个方法中会回调我们 Activity 的 onResume 方法，把 DecorView 交给 ViewRootImpl ，也就进入了 View 的绘制流程
+
+
+
+
+
+#### ThreadLocal 
+
+
+
+## 五、线程
+
+
+
+#### Handler机制 
+
+
+
+
+
+
+
+## View
+
+
+
+#### View 绘制过程
+
+
+
+
+
+#### 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent 返回 false? 
+
+
+
+
+
 - Activity启动到加载View过程 
-- View绘制过程 
-- Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。
 - Activity进程的优先级。
 - 如何防止微信不被系统杀死？
 - service两种启动模式，区别
