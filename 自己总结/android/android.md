@@ -1,8 +1,44 @@
-- 自我介绍时说过自己看过EventBus源码，然后让我谈谈事件总线的理解。
-- EventBus会有什么问题吗？
-- EventBus、接口回调、观察者模式的使用场景说一下。
-- 项目什么地方用到数据的持久化，说一下。
-- Activity的生命周期，弹出dialog和一个activity的dialog生命周期有什么区别？
+## 存储
+
+
+
+#### 项目什么地方用到数据的持久化，说一下 ⭐️
+
+- 首先最轻量的是 SharePreferences
+- 稍微大点的存文件
+- 比较多了的存 SQLite 数据库
+- 存很多东西还可以用 ContentProvider 对外共享
+- 如果多到手机不够放，还可以存网络
+
+
+
+## 四大组件
+
+
+
+#### Activity的生命周期，弹出 dialog 和一个 activitydialog 生命周期有什么区别？⭐️
+
+- 正常情况下生命周期：onCreate - onStart - onResume - 界面显示出来 - onPause - onStop(界面消失) - onDestroy
+- 其实不要去背各种情况下的生命周期，因为同一情况，如果主题/背景不同，那么生命周期回调又会发生变化，所以应该了解每个方法的调用前提，遇到时进行判断
+- 首先是 onCreate 方法。它的作用是创建活动，他由主线程通过反射机制调用的，我们一般在里面进行一些布局和数据的初始化工作，所以他表示的是活动正在被创建
+- 然后是 onStart 方法，他调用时，Activity 已经创建了，但还没启动，，所以它的作用是去启动活动。之后还需要调用下一个 onResume 方法才能将其拿到前台，和用户进行交互
+- 接着是 onResume 方法，他让 Activity 变得可见，而且可以和用户进行交互
+- 然后是 onPause 方法，他表示活动被暂停，他一般会和 onStop 方法连用，除非是弹出对话框这种，不会遮住全部界面的情况，甚至普通的对话框，onPause 都不会执行，只有主题对话框这种，才会 onPause
+- onStop 方法表示，活动退居后台，也就是说，他在活动不可见时调用，释放当前屏幕给下一个占用者
+- onDestroy 表示活动被销毁，也就是资源全部释放，一般要在这里，接触服务的绑定，以及停止线程等等
+- onRestart 是onStart 前的准备动作，可以理解为之前有调用过 onStop ，从新回来就会调用 onRestart
+- 根据上面这几点，可以把生命周期分为：由 onCreate - onDestroy 的完整生存期，和 onStart - onStop 的可见生存期，以及 onResume - onPause 的前台生存期
+
+
+
+## App 启动
+
+- ThreadLocal 
+- app启动流程
+- 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent返回false? 
+- Activity启动到加载View过程 
+- View绘制过程 
+
 - Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。
 - Activity进程的优先级。
 - 如何防止微信不被系统杀死？
@@ -12,9 +48,7 @@
 - 有一个很大很大的图片加载到内存上，不能降低清晰度和压缩图片你怎么解决？（提示我局部显示？我没懂）
 - 如何适配不同厂商的手机，然后设计模式，brara又说了一大堆，最后还说到jetkins自动部署上面去了
 - AsyncTask源码分析，每个方法在哪个线程执行的？
-
 - 6.fragment的懒加载。
-
 - 3.接下来就EventBus的东西了，还是老问题，优缺点，有没有什么问题，列举了很多场景，我看源码看的比较细，根据自己看过的东西做回答和分析，然后还是，接口回调和观察者模式之间的选择。
 - 4.问我你看过这么多源码，你觉得什么东西最重要?
 - 5.答了源码中看到了大量的反射使用，多线程方面，Collections，数据结构这些。
@@ -24,30 +58,15 @@
 - 9.APP从打开到显示之间发生的事情。
 - 10.为什么java可以调用c/c++的函数，调用jni发生的事情说一下。
 - 11.动画种类，使用动画的步骤，有没有看过动画框架的源码。
-
 - 有没有遇到OOM问题(有遇到内存泄漏问题) 
-
 - Handler机制 
-
-- ThreadLocal 
-
-- Activity启动到加载View过程 
-
-- View绘制过程 
-
 - **LinearLayout (wrap_content) & TextView (match_parent) 最终结果**??? 
-
 - OKHttp(1. 为什么选择它？ 
-
 - **2. 性能了解不？**3. 内部有哪些设计模式) 
-
 - **了解EventBus嘛？**
-
 - 为什么选择OKHTTP框架
 - 加载图片框架？(**学一下Glide**)
 - JSON解析框架？（**学一下Gson，FastJson**）
-
-
 
 - **Activity生命周期？启动透明Activity生命周期？按Home键生命周期？**  
 
@@ -81,7 +100,6 @@
 - Activity启动模式 
 - **IntentFilter匹配规则**，action和category区别？ 
 - Handler 阻塞为什么不卡死? 
-- 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent返回false? 
 - Looper 
 - 对象池，手写对象池实现 
 - ContentProvider原理 
@@ -259,8 +277,6 @@
 
 - target_SDK_version是干什么的
 
-- activity生命周期 		
-
 - activity启动模式 		
 
 - ANR是什么以及产生原因 		
@@ -288,7 +304,7 @@
 
 - 内存泄露以及handler内存泄露原理 				
 
-- 垃圾回收机制（垃圾回收算法，怎么就老年代了，如何判断是不是可以回收，GC root是什么有哪些） 				
+- 垃圾回收机制（垃圾回收算法，怎么就老年代了，如何判断是不是可以回收，GC root是什么有哪些） 			
 
 - 写过哪些应用？ 				
 
@@ -305,12 +321,10 @@
 
 - ListView和RecycleView的区别
 
-- Activity的生命周期
 - Service的生命周期
 - Fragment的生命周期
 - Handler内部实现机制
 - 如果是你，你怎么实现Handler
-- 四大组件
 - OOM
 - listView在什么情况会发生OOM
 - surfaceView
@@ -451,7 +465,6 @@
 - android q的适配
 - 沙盒模式
 - 说百度实习经历
-- app启动
 - view渲染 surfase
 - ipc binder机制
 
