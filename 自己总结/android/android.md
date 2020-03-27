@@ -1,0 +1,459 @@
+- 自我介绍时说过自己看过EventBus源码，然后让我谈谈事件总线的理解。
+- EventBus会有什么问题吗？
+- EventBus、接口回调、观察者模式的使用场景说一下。
+- 项目什么地方用到数据的持久化，说一下。
+- Activity的生命周期，弹出dialog和一个activity的dialog生命周期有什么区别？
+- Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。
+- Activity进程的优先级。
+- 如何防止微信不被系统杀死？
+- service两种启动模式，区别
+- 两种启动模式，如果我在退出Activity的时候没有退出service会怎么样。
+- 设计一个图片浏览框架，（线程池，lru缓存，brabra的说了一堆）。
+- 有一个很大很大的图片加载到内存上，不能降低清晰度和压缩图片你怎么解决？（提示我局部显示？我没懂）
+- 如何适配不同厂商的手机，然后设计模式，brara又说了一大堆，最后还说到jetkins自动部署上面去了
+- AsyncTask源码分析，每个方法在哪个线程执行的？
+
+- 6.fragment的懒加载。
+
+- 3.接下来就EventBus的东西了，还是老问题，优缺点，有没有什么问题，列举了很多场景，我看源码看的比较细，根据自己看过的东西做回答和分析，然后还是，接口回调和观察者模式之间的选择。
+- 4.问我你看过这么多源码，你觉得什么东西最重要?
+- 5.答了源码中看到了大量的反射使用，多线程方面，Collections，数据结构这些。
+- 6.问我多线程，引申出handler，我从handler的源码去解释
+- 7.handler引申出的内存泄漏，为什么静态内部类不会持有外部对象
+- 8.接下来还是场景题，图片框架的实现，涉及到的Lru缓存，线程池，线程池该如何分配线程数量。
+- 9.APP从打开到显示之间发生的事情。
+- 10.为什么java可以调用c/c++的函数，调用jni发生的事情说一下。
+- 11.动画种类，使用动画的步骤，有没有看过动画框架的源码。
+
+- 有没有遇到OOM问题(有遇到内存泄漏问题) 
+
+- Handler机制 
+
+- ThreadLocal 
+
+- Activity启动到加载View过程 
+
+- View绘制过程 
+
+- **LinearLayout (wrap_content) & TextView (match_parent) 最终结果**??? 
+
+- OKHttp(1. 为什么选择它？ 
+
+- **2. 性能了解不？**3. 内部有哪些设计模式) 
+
+- **了解EventBus嘛？**
+
+- 为什么选择OKHTTP框架
+- 加载图片框架？(**学一下Glide**)
+- JSON解析框架？（**学一下Gson，FastJson**）
+
+
+
+- **Activity生命周期？启动透明Activity生命周期？按Home键生命周期？**  
+
+- **后台杀死APP后怎么恢复数据？**  
+
+- 一个APP可以多进程嘛？ 
+
+- ListView和RecyclerView区别？ 
+
+- **RecyclerView卡顿怎么排查？**  
+
+- RecyclerView怎么实现多Type？ 
+
+- RecyclerView的ItemView层级过深怎么优化？ 
+
+- Android多进程？ 
+
+- 怎么设计Android线程间通信？ 
+
+- Handler机制？子线程可以用Handler吗？ 
+
+- ANR？
+
+- 实现的功能，基于OKHTTP实现网络请求
+
+- 图片，语音大内存数据的性能排查，定位？
+- Handler内存泄漏问题
+
+- Android四大组件安全性 
+
+- Activity启动模式 
+- **IntentFilter匹配规则**，action和category区别？ 
+- Handler 阻塞为什么不卡死? 
+- 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent返回false? 
+- Looper 
+- 对象池，手写对象池实现 
+- ContentProvider原理 
+- sp支持跨进程么？怎么解决跨进程，怎么实现进程同步 
+- 帧动画实现: 100张图，200ms显示一张，读取一张图要400ms，怎么解决避免卡顿(多线程读) 
+- Bitmap内存复用限制条件 
+- 线程时间片分配原理
+
+- 类加载机制
+- okhttp原理
+- 热修复原理
+
+- **TouchEvent传递过程**？ **onTouchEvent返回flase怎么办**  
+- **怎么设计缓存**  
+- Android数据持久化 
+- 数据库怎么批处理（原理） 
+- SP支不支持多线程？SP怎么实现多线程 
+- **View绘制过程**  
+- Handler消息机制
+
+- Lint工具？
+- 进程间通信方式（与linux进程间通信区别） 
+- Socket怎么验证安全性 
+- 广播（全局 本地区别） 
+- 怎么实现文件的多进程通讯（A进程改了文件怎么通知B进程读取） 
+- 二级缓存怎么设计（网络 数据库 view间关系）
+
+- Activivty 生命周期 
+- onSaveInstanceState onRestoreInstanceState区别，调用时机 
+- 广播注册应该在Activity哪个生命周期里 
+- 怎么统计onCreate的次数 
+- Fragment与Activity区别 
+- Fragment生命周期管理 
+- Fragment与ViewPager怎么做到重复加载 
+- View绘制过程 MeasureSpec的三种模式 
+- Framelayout LinearLayout ReativeLayout怎么做到View在右下 
+- margin padding区别 
+- gone invisible的区别 
+- requestLayout、invalidate与postInvalidate区别 
+- Android动画 怎么取消循环动画 repeat模式 
+- drawable与view区别 有哪些drawable
+
+- 图片传输过程中URL加上默认大小如果是wrap_content怎么办 
+- 图片相关缓寸，编码，内存复用 
+- svg (其他图片格式) 
+- drawable mutate了解不 
+- okhttp 桥接拦截器和缓存拦截器 
+- 设计自定义DNS解析器 
+- 打点系统设计:写文件过程中会有buffer，此时进程被杀怎么办，怎样设计日志系统 打点日志被用户篡改怎么办，保证日志安全性 
+- 磁盘内存映射原理 
+- 有没有看过开源打点框架 
+- 平时开发有没有遇到过资源复用 
+- 最近了解啥Android新动向不
+
+- OSS STS凭证设计
+- **Lint工具是编译期的嘛？原理？**
+
+- 美团首页设计？
+- **RecyclerView多Item的难点**？
+
+- Queue.next到底处于什么状态（睡眠？阻塞？）** 应该是阻塞状态，底层 
+
+- **epoll到底怎么实现的**（还是没能说清楚？机制？native层呢还是系统层） epoll(Linux系统)监听文件描述符 
+
+- 应用程序的main方法在哪？怎么实现不退出？ 
+
+- 广播的机制？ 
+
+- 应用程序的退出？**进程优先级**
+
+- Activity生命周期？onRestart什么时候执行？别的生命周期？ 
+
+- 四大组件？ 
+
+- Service两种启动方式？区别？生命周期流程？**能不能在Application中启动Service(可以，有context了)**  
+
+- 局部广播 
+
+- ListView RecyclerView区别？**ListView定量更新(根据位置取出来直接更新)**  
+
+- 图片大怎么加载？图片加载框架设计？ 
+
+- Handler机制？ 
+
+- AsyncTask？ 
+
+- 线程池参数？ 
+
+- ANR机制？ 
+
+- ANR，Crash怎么上传到服务器？ **CrashHandler UncaughtExceptionHandler？？？**  
+
+- 网络加载框架，怎么设计网络请求接口
+
+- 四大组件都用过么（回答没用过contentprovider，再问那知道他是干啥的不……背了一些概念）
+
+- activity启动模式
+
+- 多进程的几个activity依次启动 一个application只会被初始化一次吗
+
+- handler
+
+- 怎么样算是一次请求成功了
+
+- 项目中写的bitmap优化是指？
+
+- 线程池用过没，有什么优点
+
+- 问怎么恢复acticity状态 哪些方法 oncreate里面能恢复吗 和重写那俩方法恢复有什么区别
+- view的 measure onmeasure什么区别 on draw draw dispatchdraw什么区别
+
+- framelayout relativelayout有什么区别
+
+- 对android什么地方最熟悉
+- bitmap存储的位置 安卓几个版本有什么不同？
+
+- 对android什么地方最熟悉
+- bitmap存储的位置 安卓几个版本有什么不同？
+
+- framelayout relativelayout有什么区别
+- recyclerview机制 怎么区分不同类型的item的
+- 内存泄露有哪些场景
+
+- activity生命周期
+- oncreate和onstart区别
+- oncreate执行一个耗时操作会怎么样
+- 什么情况会anr
+- handler
+- looper prepare做了什么事情
+- dialog弹出会不会影响生命周期（我说这个试过，不能，他说确定吗。。我说确定…他说会，下来之后再看看……）
+
+- 项目的图片太大怎么处理的
+- 什么是采样率 什么是分辨率
+
+- 跨进程通信
+
+- bitmap的优化 怎么压缩
+- 提到分辨率和质量 压缩什么区别inbitmap什么用 bitmapRegiondecoder
+
+- a启动b流程 为什么是先pause 等b展示完了再stop
+
+- 怎么监控卡顿
+
+- 性能优化做过图片是吧 讲一下
+
+- 了解android push的机制吗
+
+- 怎么保证客户端的安全
+
+- anr分类有哪些，原因（具体不了解，就知道执行网络或者数据存储等耗时操作）
+
+- anr定位（不会）
+
+- activity生命周期
+
+- activity从A打开B的生命周期（答错）
+
+- 事件分发
+
+- Android的权限机制了解过吗？(只说了6.0后加入了动态权限并举了几个简单例子，应该更深入点展开) 
+
+- view的绘制流程？是谁发起的绘制流程(谁触发了decoerview的绘制)？viewgroup的ontouch方法一定会执行吗(什么情况下会执行)？  
+
+- viewGroup的onTouchEvent一定会执行吗(如何判断其是否会执行)？ 
+
+- 有没有使用过codeLint 
+
+- 什么是anr？handler中进行耗时***作有可能导致anr吗？
+
+- handler机制以及其内存泄露、多个handler如何识别 	
+
+- Broadcast Receiver有哪几种区别以及在哪个进程中，为什么本地Receiver不可以用在线程间通信，onReceiver在哪个线程中， 	
+
+- service在哪个进程中，service具体
+
+- target_SDK_version是干什么的
+
+- activity生命周期 		
+
+- activity启动模式 		
+
+- ANR是什么以及产生原因 		
+
+- handler机制以及怎么调用handler，looper和线程的关系 		
+
+- 多线程通信有哪些方式？（handler，线程池） 		
+
+- 进程间通信的方式 		
+
+- 线程池的分类以及具体是什么，以及这些线程池的参数都是什么 		
+
+- handler内存泄露问题如何解决
+
+- Android的APP启动流程
+- 进程间通信方式
+
+- 进程间通信
+- 四大组件是什么
+- activity生命周期
+- 死锁条件以及如何解锁
+- 线程池的种类及作用
+
+- 设计模式有哪些？最了解哪个？这些设计模式的使用场景 				
+
+- 内存泄露以及handler内存泄露原理 				
+
+- 垃圾回收机制（垃圾回收算法，怎么就老年代了，如何判断是不是可以回收，GC root是什么有哪些） 				
+
+- 写过哪些应用？ 				
+
+- 前端项目问，关于前端和android结合H5的了解
+
+- View事件分发+ 滑动冲突
+- View的绘制流程
+- Activity的生命周期
+- MVC MVP
+- 线程安全
+- 弱引用，软引用
+- Rxjava(使用，好处)
+- 内存泄漏
+
+- ListView和RecycleView的区别
+
+- Activity的生命周期
+- Service的生命周期
+- Fragment的生命周期
+- Handler内部实现机制
+- 如果是你，你怎么实现Handler
+- 四大组件
+- OOM
+- listView在什么情况会发生OOM
+- surfaceView
+- Binder(手写AIDL)
+- 绘制流程
+- view事件分发
+- GC
+
+- Rxjava优点，应用
+- Retrofit
+- RecyclerView不同子项
+- 事件分发
+- MVP 和MVC的区别
+- 四大组件的使用场景
+- Service两种状态，两种使用场景，组件间通信
+- 如何实现不同机型的适配
+- 持久化存储
+- 不同Fragment之间传递数据
+
+- 组件化的使用
+- 组件化通信
+- 编译时注解 运行时注解(没答上来)
+- 进程线程区别
+- ARoute
+- 多进程读取SharedPreferences
+- 进程间通信
+
+- sp存在哪
+- sp提供了那些接口[不知道]
+- 数据库(15的按照学号逆序)[没写出来]
+
+- okhttp
+- retrofit
+- recycler view优点，使用时注意什么
+- 滑动冲突
+- 自定义view
+
+- 进程通信
+- 进程间调度算法
+
+- binder
+- 广播
+- 滑动冲突
+- 自定义view
+- 事件分发
+- okhttp
+- Retrofit
+- rxjava
+- 项目中组件化
+
+- rxjava 1.0和2.0区别
+
+- okhttp的源码优点
+- url点击之后发生了什么
+
+- langchar点击到第一个应用的启动(zygoto创建应用进程)
+- onCreate的view加载
+- asm如何跨进程通信
+- binder机制
+- 为什么用binder
+- ims获取事件
+- android6.0到9.0都有什么变化(不知道…)
+
+- okhttp亮点
+
+- 百度实习经历cash的解决
+
+- 文本压缩的实现(哈夫曼编码)
+- 视频压缩，音频压缩
+
+- 自己如何实现图片加载库
+- lru缓存
+
+- Handler(loop死循环，如何唤醒，定时任务的实现)
+- 事件分发
+- binder(如果实现数据传输，服务端在哪个线程接收数据)
+
+- activity的四种启动方式
+
+- activity启动方式singleInstance在什么情况下被使用
+
+- 启动另一个app的activity发生了什么
+
+- activity中包含一个ViewGrop，ViewGrop里面包含一个button，手指在Button中心放着，慢慢移动到button外- 这个过程中发生了什么?
+
+- 上面那个是否会调用button的onClick时间
+
+- android q的适配
+
+- 语音SDK的实现
+
+- jetpack是什么
+
+- livedata是什么
+
+- viewmodel是什么
+
+- kotlin语言语法(网络)
+
+- 如何学习android
+
+- 组件化相关
+
+- gradle的作用，构建过程
+
+- 项目遇到的难点
+
+- 滑动冲突的解决
+
+- rxjava的基本原理
+
+- Retrofit的基本原理
+
+- Retrofit对于反射注解的有什么优化
+
+- Okhttp的拦截器链的设计模式
+
+- 责任链模式在哪里还有使用
+
+- retrofit的实现
+
+- 注解的原理
+- 如何自己实现注解
+- rxjava的原理(背压的实现，操作符的实现)
+- android q的适配
+
+- audio
+- surface(大概讲解，surfaceView和普通view的区别)
+
+- okhttp的源码分析
+
+- 一个app存在两个进程，app的application会初始化几次
+- 两个进程访问同一个单例是否有问题
+- 讲讲单例模式
+- 懒汉饿汉
+- 锁膨胀
+
+- android q的适配
+- 沙盒模式
+- 说百度实习经历
+- app启动
+- view渲染 surfase
+- ipc binder机制
+
+- android权限的分类
+- android唯一标识符
