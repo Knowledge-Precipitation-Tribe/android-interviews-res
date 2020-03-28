@@ -2,7 +2,7 @@
 
 
 
-#### 项目什么地方用到数据的持久化，说一下 ⭐️
+#### 项目什么地方用到数据的持久化，说一下 ⭐️⭐️
 
 - 首先最轻量的是 SharePreferences
 - 稍微大点的存文件
@@ -16,35 +16,35 @@
 
 
 
-#### Activity的生命周期，弹出 dialog 和一个 activitydialog 生命周期有什么区别？⭐️
+#### Activity的生命周期，弹出 dialog 和一个 activitydialog 生命周期有什么区别？⭐️⭐️
 
 - 正常情况下生命周期：onCreate - onStart - onResume - 界面显示出来 - onPause - onStop(界面消失) - onDestroy
 - 其实不要去背各种情况下的生命周期，因为同一情况，如果主题/背景不同，那么生命周期回调又会发生变化，所以应该了解每个方法的调用前提，遇到时进行判断
 - 首先是 onCreate 方法。它的作用是创建活动，他由主线程通过反射机制调用的，我们一般在里面进行一些布局和数据的初始化工作，所以他表示的是活动正在被创建
 - 然后是 onStart 方法，他调用时，Activity 已经创建了，但还没启动，，所以它的作用是去启动活动。之后还需要调用下一个 onResume 方法才能将其拿到前台，和用户进行交互
 - 接着是 onResume 方法，他让 Activity 变得可见，而且可以和用户进行交互
-- 然后是 onPause 方法，他表示活动被暂停，他一般会和 onStop 方法连用，除非是弹出对话框这种，不会遮住全部界面的情况，甚至普通的对话框，onPause 都不会执行，只有主题对话框这种，才会 onPause
+- 然后是 onPause 方法，他表示活动被暂停，他一般会和 onStop 方法连用，除非是弹出对话框这种，不会遮住全部界面的情况，甚至普通的对话框，onPause 都不会执行，只有主题对话框也就是 ActivityDialog 这种，才会 onPause
 - onStop 方法表示，活动退居后台，也就是说，他在活动不可见时调用，释放当前屏幕给下一个占用者
 - onDestroy 表示活动被销毁，也就是资源全部释放，一般要在这里，接触服务的绑定，以及停止线程等等
 - onRestart 是onStart 前的准备动作，可以理解为之前有调用过 onStop ，从新回来就会调用 onRestart
-- 根据上面这几点，可以把生命周期分为：由 onCreate - onDestroy 的完整生存期，和 onStart - onStop 的可见生存期，以及 onResume - onPause 的前台生存期
+- 根据上面这几点，可以把生命周期分为三种：分别是由 onCreate - onDestroy 的完整生存期，和 onStart - onStop 的可见生存期，以及 onResume - onPause 的前台生存期
 
 
 
 
-#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。
+#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。⭐️⭐️
 
 - standard 普通
-- singleTop 栈顶复用
-- singleTask 栈内唯一
-- singleInstance 操作系统全局唯一
+- singleTop 栈顶复用，新闻
+- singleTask 栈内唯一，微信主页
+- singleInstance 操作系统全局唯一，闹钟提示
 - 两个栈 AC 一个栈， B 一个栈， C 切换到 B时，会先把栈切换成 AC 的栈，结果变成了 C 切换 A 的效果（Android 四大组件，类似微信效果）
 
 
 
 
 
-#### service 两种启动模式，区别
+#### service 两种启动模式，区别⭐️⭐️
 
 - 第一种是采用 startService 的方式，先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 startServive(intent) 开启，不用时调用 stopService(intent) 停止。
   - 所以其生命周期是 onCreate - onStartCommand - onDestroy，由于 onStart 已经过时，所以现在都是调用 onStartCommand。
@@ -56,11 +56,30 @@
 
 
 
-#### Fragment 生命周期
+#### Fragment 生命周期⭐️
 
 - 中间和 Activity 一样，就是前后多了绑定和解绑，也就是 **onAttach** - onCreate - **onCreateView - onActivityCreated** - onStart - onPause - onStop - **onViewDestroyed** - onDeatroy - **onDetach**
+- onAttach：这个方法执行时说明 Activity 和 fargment 已完成绑定，他有一个参数 context 便是被绑定的Activity，同时还我们可以通过 getArguments() 方法获得传递来的参数，要注意的是，如果要传递参数，必须使用 Fagment.newInstance(...) 的方式创建 Fragment 而不能直接 new
+- onCreate 的作用是创建 Fragment，这里可以通过 onSaveInstanceState 参数获得非正常销毁时保存的数据
+- onCreateView ：在这里进行 View 的实例化操作，但不要进行耗时操作
+- onActivityCreated ：该方法表明 Fagment 与 Activity 进行绑定的 onCreate 方法已经完成，可以在这里进行 UI 的交互操作，也从侧面说明，在回调该方法前 onCreate 并没有执行完，所以在他之前访问 Activity 的 UI 会报空指针
+- onStart ：把 Fragment 变为可见状态，但还看不到内容
+- onResume：View 的绘制结束，这是用户可以与 Fragment 进行交互
+- onPause ：由于切屏等原因进入暂停状态
+- onSaveInstanceState：如果是 Fragment 背意外回收，调用来保存当前数据，并在重启时，从 onSaveInstanceState 参数获得所保存的内容
+- onStop ：释放当前占有的屏幕，变得不可见
+- onDestroyView：销毁 Fragment 的所有视图，通常是在 Viewpager 和 Fragment 联用时调用
+- onDestroy：销毁碎片，被回收
+- onDetach：与 Activity 解除绑定
 
-- 
+
+
+#### [Fragment add replace 区别](https://www.cnblogs.com/genggeng/p/6780014.html)⭐️
+
+- add() 是添加但不销毁，它他以不断地往容器里添加 fragment 先加的会被放在最上面，但重复添加会抛异常，所以添加时要加上一个 Tab 标记，然后结合 hide 或者 remove 使用时通过 FargmentManager 的 findFragmentByTag 获得，这样一来可以节约绘制时间，而来节约反复创建的资源消耗
+
+- replace 调用时，会把容器里所有的 Fragment 都销毁掉，这种做法可以减少 Fragment 的层级，但是每次又得创建新的 Fragment 资源开销比较大
+- 两者的共同点是都会执行一遍 Fragment 的生命周期，但 replace 开销大所以只在一些特殊场景上用。而使用 add 时为了避免重复添加，建议使用单例模式
 
 
 
@@ -68,22 +87,22 @@
 
 
 
-#### App 启动流程
+#### App 启动流程⭐️⭐️
 
 - 首先我们用户点击应用图标的时候，AMS 先会去检查系统中是否有支持该应用程序的进程，如果没有的话，择取通知 Zygote
-- Zygote 收到 AMS 发来的消息后，恢复 fork 自身，这样我们就获得到了一个虚拟机实例，紧接着为其创建 Binder 线程池和 Loop 消息循环，这样我们的 App 进程就出现了
+- Zygote 的意思是受精卵，说明它是用来复制增殖用的，比如我们的系统管理进程 system_server 就是他孵化出来的，所以在收到 AMS 发来的消息后，恢复 fork 自身，这样我们就获得到了一个虚拟机实例，紧接着为其创建 Binder 线程池和 Loop 消息循环，这样我们的 App 进程就出现了
 - 然后我们的进程会通过 Binder IPC 想我们的 system_server 发送一个 ATTACH_APPLICATION 消息，我们的 system_server 收到后，会先做一系列的准备，再向 ApplicationThread 发送 SHCHEDULE_LAUNCH_ACTIVITY 消息
-- 我们的 ApplicationThread 收到消息后，通过 Handler H 向主线程发送 LAUNCH_ACTIVITY 消息，主线程在收到消息后，会通过反射调用我们 Activity 的 onCreate 方法，至此就进入了我们 Activity 的生命周期
+- 我们的 ApplicationThread 收到消息后，通过 Handler 向主线程发送 LAUNCH_ACTIVITY 消息，主线程在收到消息后，会通过反射调用我们 Activity 的 onCreate 方法，至此就进入了我们 Activity 的生命周期
 
 
 
-#### [Activity 启动流程](https://blog.csdn.net/u010648159/article/details/81103092)
+#### [Activity 启动流程](https://blog.csdn.net/u010648159/article/details/81103092)⭐️⭐️
 
 - 首先，除了我们 App 启动流程中启动 Activity 的情况外，我们所谓的 Activity 启动流程，一般是指 Context 调用 startActivity 方法开始，到 Activity 最终显示在屏幕上的过程。
-- 然而我们 Context 调用 Activity 实际上是 ContextImpl 调用 startActivity ，它的内部会通过 Instrumentation 调用 execStartActivity 的过程，而这个 Instrumentation 则是一个在程序运行前初始化的，用来检测程序和操作系统之间交互的类
-- 其内部会调用  AMS 的 startActivity 方法，所以这实际上是一个跨进程通行的过程
+- 然而我们 Context 调用 Activity 实际上是 ContextImpl 调用 startActivity ，它的内部会通过 Instrumentation 调用 execStartActivity 的过程，而这个 Instrumentation  则是一个在程序运行前初始化的，用来检测程序和操作系统之间交互的类
+- 其内部会调用  AMS 的 startActivity 方法，所以这实际上是一个跨进程通行的过程（注意 Instrumentation  不是 Binder，不是做）
 - 在我们 AMS 调用其 startActivity 方法之后，AMS 会去检查下目标 Activity 的合法性，在通过 ApplicationThred 回到我们的进程，而我们的 ApplicationThred 实际上就是一个 Binder，所以起本质上也是一个跨通信的过程
-- 最后由于 Android 的单线程模型，我们的所有 UI 操作都必须在主线程中执行，所以我们的 ActivityThread 需要向 Handler H 发送一个 LAUNCH_ACTIVUTY 消息，调用其 handleResumeActivity 方法，这个方法中会回调我们 Activity 的 onResume 方法，把 DecorView 交给 ViewRootImpl ，也就进入了 View 的绘制流程
+- 最后由于 Android 的单线程模型，我们的所有 UI 操作都必须在主线程中执行，所以我们的 ActivityThread 需要向 Handler 发送一个 LAUNCH_ACTIVUTY 消息，调用其 handleResumeActivity 方法，这个方法中会回调我们 Activity 的 onResume 方法，把 DecorView 交给 ViewRootImpl ，也就进入了 View 的绘制流程
 
 
 
@@ -433,3 +452,8 @@
 - ipc binder机制
 - android权限的分类
 - android唯一标识符
+
+- 自我介绍时说过自己看过EventBus源码，然后让我谈谈事件总线的理解。
+
+- EventBus会有什么问题吗？
+- EventBus、接口回调、观察者模式的使用场景说一下。
