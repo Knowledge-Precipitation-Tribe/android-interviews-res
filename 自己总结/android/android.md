@@ -2,7 +2,7 @@
 
 
 
-#### 项目什么地方用到数据的持久化，说一下 ⭐️⭐️
+#### 项目什么地方用到数据的持久化，说一下 ⭐️⭐️⭐️
 
 - 首先最轻量的是 SharePreferences
 - 稍微大点的存文件
@@ -16,7 +16,7 @@
 
 
 
-#### Activity的生命周期，弹出 dialog 和一个 activitydialog 生命周期有什么区别？⭐️⭐️
+#### Activity的生命周期，弹出 dialog 和一个 activitydialog 生命周期有什么区别？⭐️⭐️⭐️
 
 - 正常情况下生命周期：onCreate - onStart - onResume - 界面显示出来 - onPause - onStop(界面消失) - onDestroy
 - 其实不要去背各种情况下的生命周期，因为同一情况，如果主题/背景不同，那么生命周期回调又会发生变化，所以应该了解每个方法的调用前提，遇到时进行判断
@@ -27,12 +27,13 @@
 - onStop 方法表示，活动退居后台，也就是说，他在活动不可见时调用，释放当前屏幕给下一个占用者
 - onDestroy 表示活动被销毁，也就是资源全部释放，一般要在这里，接触服务的绑定，以及停止线程等等
 - onRestart 是onStart 前的准备动作，可以理解为之前有调用过 onStop ，从新回来就会调用 onRestart
+- onSaveInstance - 可能在 onPause 前也可能之后，随机，onRestoreInstance - onstart 后调用
 - 根据上面这几点，可以把生命周期分为三种：分别是由 onCreate - onDestroy 的完整生存期，和 onStart - onStop 的可见生存期，以及 onResume - onPause 的前台生存期
 
 
 
 
-#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。⭐️⭐️
+#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。⭐️⭐️⭐️
 
 - standard 普通
 - singleTop 栈顶复用，新闻
@@ -44,7 +45,7 @@
 
 
 
-#### service 两种启动模式，区别⭐️⭐️
+#### service 两种启动模式，区别⭐️⭐️⭐️
 
 - 第一种是采用 startService 的方式，先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 startServive(intent) 开启，不用时调用 stopService(intent) 停止。
   - 所以其生命周期是 onCreate - onStartCommand - onDestroy，由于 onStart 已经过时，所以现在都是调用 onStartCommand。
@@ -56,13 +57,13 @@
 
 
 
-#### Fragment 生命周期⭐️
+#### Fragment 生命周期⭐️⭐️
 
 - 中间和 Activity 一样，就是前后多了绑定和解绑，也就是 **onAttach** - onCreate - **onCreateView - onActivityCreated** - onStart - onPause - onStop - **onViewDestroyed** - onDeatroy - **onDetach**
 - onAttach：这个方法执行时说明 Activity 和 fargment 已完成绑定，他有一个参数 context 便是被绑定的Activity，同时还我们可以通过 getArguments() 方法获得传递来的参数，要注意的是，如果要传递参数，必须使用 Fagment.newInstance(...) 的方式创建 Fragment 而不能直接 new
 - onCreate 的作用是创建 Fragment，这里可以通过 onSaveInstanceState 参数获得非正常销毁时保存的数据
-- onCreateView ：在这里进行 View 的实例化操作，但不要进行耗时操作
-- onActivityCreated ：该方法表明 Fagment 与 Activity 进行绑定的 onCreate 方法已经完成，可以在这里进行 UI 的交互操作，也从侧面说明，在回调该方法前 onCreate 并没有执行完，所以在他之前访问 Activity 的 UI 会报空指针
+- onCreateView ：在这里进行静态 View 的实例化操作，但不要进行自定义 View 的初始化工作，也不不要进行进行耗时操作（自定义 View 或非静态 View  是例化需要传入 Activity 的 context，也就是 getActivity ，但和 Activity 的绑定需要等 onActivityCreated 调用时才完成，这里找不到会空指针）
+- onActivityCreated ：该方法表明 Fagment 与 Activity 进行绑定的 onCreate 方法已经完成，所以可以在这里进行与 Activity UI 的交互操作，也从侧面说明，非静态 View 比如自定义 View 等，需要传入 Activity 的 context 实例的 View 需要在这里进行
 - onStart ：把 Fragment 变为可见状态，但还看不到内容
 - onResume：View 的绘制结束，这是用户可以与 Fragment 进行交互
 - onPause ：由于切屏等原因进入暂停状态
@@ -74,9 +75,9 @@
 
 
 
-#### [Fragment add replace 区别](https://www.cnblogs.com/genggeng/p/6780014.html)⭐️
+#### [Fragment add replace 区别](https://www.cnblogs.com/genggeng/p/6780014.html)⭐️⭐️
 
-- add() 是添加但不销毁，它他以不断地往容器里添加 fragment 先加的会被放在最上面，但重复添加会抛异常，所以添加时要加上一个 Tab 标记，然后结合 hide 或者 remove 使用时通过 FargmentManager 的 findFragmentByTag 获得，这样一来可以节约绘制时间，而来节约反复创建的资源消耗
+- add() 是添加但不销毁，它他以不断地往容器里添加 fragment 先加的会被放在最上面，由于容器内 Fragment 的引用可能被回收，且重复添加会抛异常，所以在 add Fragment 方法里要加上一个 Tab 标记，然后结合 hide 或者 remove 使用时通过 FargmentManager 的 findFragmentByTag 获得，这样一来可以节约绘制时间，而来节约反复创建的资源消耗
 
 - replace 调用时，会把容器里所有的 Fragment 都销毁掉，这种做法可以减少 Fragment 的层级，但是每次又得创建新的 Fragment 资源开销比较大
 - 两者的共同点是都会执行一遍 Fragment 的生命周期，但 replace 开销大所以只在一些特殊场景上用。而使用 add 时为了避免重复添加，建议使用单例模式
@@ -87,7 +88,7 @@
 
 
 
-#### App 启动流程⭐️⭐️
+#### App 启动流程⭐️⭐️⭐️
 
 - 首先我们用户点击应用图标的时候，AMS 先会去检查系统中是否有支持该应用程序的进程，如果没有的话，择取通知 Zygote
 - Zygote 的意思是受精卵，说明它是用来复制增殖用的，比如我们的系统管理进程 system_server 就是他孵化出来的，所以在收到 AMS 发来的消息后，恢复 fork 自身，这样我们就获得到了一个虚拟机实例，紧接着为其创建 Binder 线程池和 Loop 消息循环，这样我们的 App 进程就出现了
@@ -96,7 +97,7 @@
 
 
 
-#### [Activity 启动流程](https://blog.csdn.net/u010648159/article/details/81103092)⭐️⭐️
+#### [Activity 启动流程](https://blog.csdn.net/u010648159/article/details/81103092)⭐️⭐️⭐️
 
 - 首先，除了我们 App 启动流程中启动 Activity 的情况外，我们所谓的 Activity 启动流程，一般是指 Context 调用 startActivity 方法开始，到 Activity 最终显示在屏幕上的过程。
 - 然而我们 Context 调用 Activity 实际上是 ContextImpl 调用 startActivity ，它的内部会通过 Instrumentation 调用 execStartActivity 的过程，而这个 Instrumentation  则是一个在程序运行前初始化的，用来检测程序和操作系统之间交互的类
@@ -140,10 +141,8 @@
 
 
 
-- Activity启动到加载View过程 
 - Activity进程的优先级。
 - 如何防止微信不被系统杀死？
-- service两种启动模式，区别
 - 两种启动模式，如果我在退出Activity的时候没有退出service会怎么样。
 - 设计一个图片浏览框架，（线程池，lru缓存，brabra的说了一堆）。
 - 有一个很大很大的图片加载到内存上，不能降低清晰度和压缩图片你怎么解决？（提示我局部显示？我没懂）
@@ -160,10 +159,10 @@
 - 10.为什么java可以调用c/c++的函数，调用jni发生的事情说一下。
 - 11.动画种类，使用动画的步骤，有没有看过动画框架的源码。
 - 有没有遇到OOM问题(有遇到内存泄漏问题) 
-- Handler机制 
 - **LinearLayout (wrap_content) & TextView (match_parent) 最终结果**??? 
-- OKHttp(1. 为什么选择它？ 
-- **2. 性能了解不？**3. 内部有哪些设计模式) 
+- 为什么选择OKHttp？ 
+- OKHttp 性能了解不？
+- OKHttp内部有哪些设计模式 
 - **了解EventBus嘛？**
 - 为什么选择OKHTTP框架
 - 加载图片框架？(**学一下Glide**)
@@ -439,7 +438,7 @@
 - android q的适配
 - audio
 - surface(大概讲解，surfaceView和普通view的区别)
-- okhttp的源码分析
+- okhttp 的源码分析
 - 一个app存在两个进程，app的application会初始化几次
 - 两个进程访问同一个单例是否有问题
 - 讲讲单例模式
@@ -452,8 +451,6 @@
 - ipc binder机制
 - android权限的分类
 - android唯一标识符
-
 - 自我介绍时说过自己看过EventBus源码，然后让我谈谈事件总线的理解。
-
 - EventBus会有什么问题吗？
 - EventBus、接口回调、观察者模式的使用场景说一下。
