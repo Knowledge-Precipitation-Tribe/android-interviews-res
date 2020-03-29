@@ -1,22 +1,26 @@
 ## Java 基础
 
-
-
 - Java内存布局
-- GC机制
-- 集合框架
+- GC机制、
+
+#### 对象的加载过程？（类的初始化此过程）
+
+
+
+
 - 进程线程区别，进程消耗资源多原因
 - 同步
 - 死锁
 - IPC
-
 - cas 等
+
+
 
 ## 虚拟机
 
 
 
-#### Dalvik 和ART是什么，有啥区别？
+#### Dalvik 和ART是什么，有啥区别？⭐️⭐️
 
 - Dalvik 是 google 的一款虚拟机，它能将以 .dex 格式压缩的程序运行起来，很适合软硬件资源有限的 Android 系统。经过改良后内存中能够支持多个 Dalvik 进程同时运行，避免一个虚拟机奔溃所有程序都崩溃的问题。但由于它存在拖慢 Android 系统而饱受争议，所以 Google 推出了新版的 ART 虚拟机
 - ART 与 Dalvik 的区别主要在于预编译，就是说我们以前是用 Dalvik  的时候，每次运行程序都得把字节码编译为机器码在运行，而到了 ART 种，在我们应用程序第一次安装时，就会直接编译为机器码。所以应用程序的启动和执行都会变得更快
@@ -27,7 +31,7 @@
 
 
 
-#### Dalvik 和 JVM 区别
+#### Dalvik 和 JVM 区别⭐️⭐️
 
 - 首先是基础架构不同，Dalvik 是基于寄存器的，而 JVM 是基于字节码的
 - 然后 Dalvik 会把程序的 .class 文件压缩为 .dex 文件，而 JVM 则是直接执行 .class 文件
@@ -40,52 +44,54 @@
 
 
 
-#### 为什么建议在实例化 Hashmap 的时候传入大小？★
+#### 为什么建议在实例化 Hashmap 的时候传入大小？★★
 
 - 因为他初始化要进行 1<<4 位移运算获得 16 的大小，这个过程要耗时
+- 设置合理值提高性能，避免容量太小反复扩容
+- 分配太大浪费资源
 
 
 
-#### Node 和 Entry ？★
+#### Node 和 Entry ？★★
 
 - 1.7 中 table[] 类型为 Entry implement Map.Entry<,>
 - 1.8 中 table[] 类型为 Node implement Map.Entry<,>
 
 
 
-#### hashmap 的 put 和 get 方法怎么实现？★
+#### hashmap 的 put 和 get 方法怎么实现？★★
 
 - put 就是 resize 之前，hash&（length - 1）求 Entry<,>[] 的 index，然后就是能放，替换（跟另一个方法 replace 效果一样，但 replace 不能添加元素）和不能放，不能放就扩容的结果
 - get 就更简单了，直接 hash&（length - 1）.找到 index 位置，再用equals 去找链表/树上的位置
 
 
 
-#### 为什么 String 和 Integer 适合被作为键值？★
+#### 为什么 String 和 Integer 适合被作为键值？★★
 
 - 一方面 String 是放运行时常量池的，他的优点也就是他的缺点，就是不可变，就是说它没有 .append 方法，一次创建一个对象不能修改，如果拼接的话，比如 String s = s + "qwe" ，就会 new 出一个新的 String，然后但前的引用 s 指向新 String(s + "qwe") 的地址
 - 其他很多对象没有重写 hashcode 和 equals 方法，这就导致本应该相同的对象 .equals 没重写，结果地址比较，直接拉跨，hashcode 没写，结果频繁冲突
 
 
 
-#### HashMap 是怎么 hash 的？★
+#### HashMap 是怎么 hash 的？★★
 
 1. 第一次是将 key 的 hashcode() 的方法得出的 hash 值，由于这个是 int ，int 4字节，也就是 32 位，大小范围在 -21亿多到 +21亿多之间，所以先得跟长度 length 取余，得到这个余数又太短容易冲突，所以把他右移 16 位，真好变成 32 位的一半，也就分成了高低两个区，这时把高半区和低半区异或，就混合了原始的高低位，增加了随机性。
 2. 第二次就是将第一次得到的 hash 值和 （length - 1）做 & 运算得到 Entry[] 数组最后的存放位置
 
 
 
-#### 除了拉链法还有什么解决冲突的办法？★
+#### 除了拉链法还有什么解决冲突的办法？★★
 
 - 开放地址法 和 再哈希法
 - 开发地址法包含三方法：线行探查法、平方探查法、双重散列法
   - 线性探查法，就越是一个个往后找，找到为空的 停下、插入
   - 平方探查法也简单，字如其名就是把当前位置加 1^2 放，要还是冲突就找 2^2 ，然后3^2...以此类推
-  - 双重散列法和线性探测法类似，不同的是，线性探测每次都往后走一格，而双重散列法拥有一个附加的散列函数，每次散列结果作为向后走的格数
+  - 双重散列法,和线性探测法类似，不同的是，线性探测每次都往后走一格，而双重散列法拥有一个附加的散列函数，每次散列结果作为向后走的格数
 -  再哈希法更简单，就是设计一堆 hash 函数，这个冲突用下一个，还冲突在下一个，以此类推
 
 
 
-#### 为什么要使用 2 的幂作为 hashMap 的大小？★
+#### 为什么要使用 2 的幂作为 hashMap 的大小？★★
 
 1. 因为第一次 hash 后，第二次 hash 本来是要 hash%length 这么算，这时候如果 length 时 2 的 幂，那 hash%length <=等价于=> hash&(length-1)，由于 hash&(length-1) 的效率比取余高，所以 设置为 2 的幂，这样就可以用 & 运算代替 % 运算，提高效率
 2. 之所以hash&(length-1) 效率高是因为 length 的值为 2 的幂时，length - 1 二进制全为 1 ，那么跟所传来的 hash 值做与运算就直接是后几位，这样做效率又高又均匀
@@ -93,28 +99,28 @@
 
 
 
-#### 头插法和尾插法怎么实现？★
+#### 头插法和尾插法怎么实现？★★
 
 - 首先是 1.7 头插法，先把链表遍历一遍，看有没有存在，没有的话就把这个链表的头赋值到它的 next，然后把头的位置指向它
 - 1.8 尾插法就是直接遍历到最后一个，边遍历，边判断有没有冲突的，有就替换，遍历到最后一个都没有，没有就把最后一个的 next 指向自己完事，贼简单
 
 
 
-#### hashmap Entry<> 上节点太多，查询复杂度 O(n) 怎么半？★
+#### hashmap Entry<> 上节点太多，查询复杂度 O(n) 怎么半？★★
 
 - 在 1.8 中当单个链表上节点大于 64 时，会将单链表转换为红黑树，查找的时间复杂的也就随之变为 O(logn)
 
 
 
 
-#### hashmap 什么时候扩容？★
+#### hashmap 什么时候扩容？★★
 
 - 随着 hash 碰撞次数增加，单个 Entry 上的链表或者红黑树的节点越来越多，当数量 > capacity(table[]数组长度) * loadfactor(默认阈值0.75) 时，进行扩容
 
 
 
 
-#### hashmap 是这么扩容的？★
+#### hashmap 是这么扩容的？★★
 
 - 首先调用 resize 方法把当前 table[] 大小 *2 ，得到新数组，然后调用 transfer 方法
 - 在 transfer 方法里面，把节点键值 key ，进行 rehash 后转移过去，再把值传到表中
@@ -122,13 +128,13 @@
 
 
 
-#### hashmap 是怎么 resize 的？★
+#### hashmap 是怎么 resize 的？★★
 
 - resize 就是扩容，resize 时扩容入口方法，在里面 new 新的 Node 数组
 
 
 
-#### 为什么 hashMap 不是线程安全的？★
+#### 为什么 hashMap 不是线程安全的？★★
 
 - hashmap 线程不安全主要发生在 put 和 resize 方法
 - 两个线程同时往 hashmap 里 put 东西，A 线程本来要往最后一个节点 node 后添加新元素，这是由于时间片轮到 B 线程，B 线程也往 node 后添加元素，并且添加成功，这是时间片轮转会 A 线程，A 线程再把自己的东西添加到 node 后，这是，就造成了 B 线程所添加数据的丢失
@@ -138,7 +144,7 @@
 
 
 
-#### 为什么会形成头尾相接的环状结构？★
+#### 为什么会形成头尾相接的环状结构？★★
 
 - 首先我们 1.7 用的是头插法，所以新 Map 是逆序的，原来 A -> B，现在会变成 B -> A，这就可能有问题
 - 假设我们有 A->B->C  ,线程1 首先执行 Node next = e.next， 保存 next（B） 和 e（A） 的状态，准备移动 e 和 next.
@@ -150,13 +156,13 @@
 
 
 
-#### 如何让 Hashmap 变成线程安全？★
+#### 如何让 Hashmap 变成线程安全？★★
 
 - Map m = Collections.synchronizeMap(hashMap);
 
 
 
-#### HashMap与HashTable区别是啥？★
+#### HashMap与HashTable区别是啥？★★
 
 1. hashmap 的父类是 abstractmap, 而 hashtable 父类是 Dictionary（字典） 类
 2. hashmap 是线程不安全的，hashtable 加了 synchorized 同步锁线程安全
@@ -168,7 +174,7 @@
 
 
 
-#### 为什么不用 HashTable？★
+#### 为什么不用 HashTable？★★
 
 - Directry 类已被废弃，所以子类 Hashtable 自然也被废弃，它内部有很多没有优化的冗余代码
 - 所有方法加synchronized 效率低，有更好的 ConcurrentHashMap 类替代
@@ -179,13 +185,17 @@
 
 
 
+#### Map的线程安全？读多写少选哪个集合？(**CopyOnWrite，不懂原理没敢说**)
 
 
-- GC机制？
+
+#### GC机制？
+
+
+
 - CountDownLatch原理?
 - [private protected public 关键字的用法区别](https://github.com/FishInWater-1999/android_interviews/blob/master/Java/private%20protected%20public%20%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E7%94%A8%E6%B3%95%E5%8C%BA%E5%88%AB.md)
 - [接口，抽象类区别？抽象类要不要实现接口的方法](https://github.com/FishInWater-1999/android_interviews/blob/master/Java/%E6%8E%A5%E5%8F%A3%EF%BC%8C%E6%8A%BD%E8%B1%A1%E7%B1%BB%E5%8C%BA%E5%88%AB%EF%BC%9F%E6%8A%BD%E8%B1%A1%E7%B1%BB%E8%A6%81%E4%B8%8D%E8%A6%81%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%96%B9%E6%B3%95.md)
-- Map的线程安全？读多写少选哪个集合？(**CopyOnWrite，不懂原理没敢说**)
 - 进程 线程区别c
 - 子线程间通讯
 - 解决死锁的办法，怎么判断发生死锁
