@@ -103,9 +103,7 @@
 - 然而我们 Context 调用 Activity 实际上是 ContextImpl 调用 startActivity ，它的内部会通过 Instrumentation 调用 execStartActivity 的过程，而这个 Instrumentation  则是一个在程序运行前初始化的，用来检测程序和操作系统之间交互的类
 - 其内部会调用  AMS 的 startActivity 方法，所以这实际上是一个跨进程通行的过程（注意 Instrumentation  不是 Binder，不是做）
 - 在我们 AMS 调用其 startActivity 方法之后，AMS 会去检查下目标 Activity 的合法性，在通过 ApplicationThred 回到我们的进程，而我们的 ApplicationThred 实际上就是一个 Binder，所以起本质上也是一个跨通信的过程
-- 最后由于 Android 的单线程模型，我们的所有 UI 操作都必须在主线程中执行，所以我们的 ActivityThread 需要向 Handler 发送一个 LAUNCH_ACTIVUTY 消息，调用其 handleResumeActivity 方法，这个方法中会回调我们 Activity 的 onResume 方法，把 DecorView 交给 ViewRootImpl ，也就进入了 View 的绘制流程
-
-
+- 最后由于 Android 的单线程模型，我们的所有 UI 操作都必须在主线程中执行，所以我们的 ActivityThread 需要向 Handler 发送一个 LAUNCH_ACTIVUTY 消息，调用其 handleResumeActivity 方法，这个方法中会调用我们 Activity 的 onResume 方法，把 DecorView 交给 ViewRootImpl ，也就进入了 View 的绘制流程
 
 
 
@@ -117,11 +115,20 @@
 
 
 
-#### Handler机制 
+#### 线程池的好处? ★
+
+- 提高反应速度
+- 减少频繁创建线程带来的资源开销
+- 对多线程进行统一管理、调度
 
 
 
+#### 几种常见的线程池 ★
 
+- FixedThreadPool：有固定数量的核心线程，没有非核心线程，且核心线程不会被回收。当有对象来时，先检查核心线程有没有空闲，有空闲直接加入，没有的话加入排队队列
+- SingleThreadPool：有且只有一个核心线程，当有新线程来时，如何没有核心线程则进行创建，如果核心线程正在运行则加入等待队列，保证了线程的有序进行
+- CachedThreadPool：没有核心线程，所有的线程都是非核心线程，线程来时即加入运行，用完释放，且最大线程数为 Integer.MAX_VALUE ，适合大量耗时短的任务
+- ScheduledThreadPool：有固定数量的核心线程，且核心线程数与非核形线程总数最大 Integer.MAX_VALUE
 
 
 
@@ -129,13 +136,103 @@
 
 
 
-#### View 绘制过程
+#### View 加载过程★
+
+- View 是随着 Activity 加载而加载的，当我们调用 context 的 startActivity 启动 activity 的时候，我们的 ActivityThread 会再 handleLaunchActivity 里方法，调用 Activity 的 onCreate 方法。在 onCreate 方法中，我们会首先将布局的 layout 文件传入 setContentView 方法中，而在这个方法里，DecorView 会被 PhoneWindow 创建，也就是说这使得 DecorView 持有了我们的布局。紧接着当执行到 handleResumeActivity 时，会调用我们 Activity 的 onResume 方法，在这个方法里 DecorView 被 ViewRootImpl 所持有，因此我们的布局就被传到 Window 上，但还需要执行 View 的绘制流程才能够显示出来。
+- 而我们知道 View 的绘制是由 ViewRoot 负责的，需要注意的是每一个 DecorView 都对应这一个 ViewRoot 对象与之关联，而这种关联关系则是由 WindowManager 来维持的。当 DocorView 和 ViewRoot 关联完毕后，我们的 ViewRootImpl 的 requestLayout 会被调用来完成初步布局。然后就会去调用 scheduleTraversales 向主线程请求遍历，最终调用到 ViewRotImpl 的 performTravels 方法去执行 onLayout、onMeasure、onDraw 方法完成绘制
+
+
+
+#### View 绘制过程 onMeasure★
+
+
+
+- 我们知道 View 绘制流程的入口是 CiewRootImpl 的 performTraversals 方法，它会调用 performMeasure() 方法，而这个方法里会传入两个参数，分别是 childHeightMeasureSpec 和 childWodthMeasureSpec ，代表着 DecorView 的 MeasureSpec 值，而这个 MeasureSpec 值是由窗口大小和 DecorView 的 layoutParams 决定的，最终会调用到 View 的 onMeasure 方法内开始测量
+- view 的 measure 方法是由 ViewGroup 传来的，而 View 在调用 measure 方法之前首先会根据自己的 layoutParams 和父布局大小，确定自己的 MeasureSpec，在传递到 measure 方法中，所以先说说 measureSpec 的确定方法
+  - 父布局是  EXACTLY 情况：
+    - 若子 View 是确定值，则 mode 是 EXACTLY
+    - 若子 View 是 macth_parent ，则 mode 是 EXCATLY
+    - 若子 View 是 wrap_content ，则 mode 是 AT_MOST
+  - 若父布局是 AT_MOST
+    - 若子 View 是确定值，则 mode 是 EXCATLY
+    - 若子 View 是 match_parent ，则 mode 是 AT_MOST
+    - 若子 View 是 wrap_content ， 则 mode 是 AT_MOST
+  - 若父布局是 UNSPECIFIED
+    - 若子 View 是 确定值，则 mode 是 EXCATLY
+    - 若子 View 是 match_parent，则 mode 是 UNSPECIFIED
+    - 若子 View 是 wrap_content ，则mode 是 UNSPECIFIED
+- 确定完 MeasureSpec 后，传入 measure 来确定宽高还要分情况
+  - 如果 MeasureSpec 的 mode 是 UNSPECIFIED ，那么需要看 View 是否有设置背景，如果有背景，就用 minHeight 和 minWeight 作为 View 的宽高（minHeight 和 minWeight 默认值为零），如果有背景就用 minHeight 和 minWeight 和背景宽高的最大值，作为宽高
+  - 如果 MeasureSpaec 是 EXCATLY 或者 AT_MOST ，宽高都是用 MeasureSpec 中的 size 值，所以自定View 时一定要把 wrap_content 和 match_content 分开处理，否则两者效果一样。
+
+
+
+#### 绘制过程 onLayout
+
+
+
+
+
+#### 绘制过程 onDraw
 
 
 
 
 
 #### 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent 返回 false? 
+
+
+
+
+
+
+
+## 六、handler
+
+- Handler机制 
+
+
+
+## 七、Binder
+
+
+
+
+
+## 八、优化
+
+
+
+ #### [OOM](https://www.jianshu.com/p/2fdee831ed03) ★
+
+- 程序由于加载图片等原因，进程申请的内存超过了系统为 App 分配的最大内存限制，即使手机剩余内存再多也不会给 app 分配，从而抛出的 outOfMemeryError 错误
+
+- 为什么要有内存限制？一方面是逼程序员更合理的使用内存，同时手机屏幕大小有限只要给每个进程分配足够即可，同时为了避免系统崩溃，每开启一个 app 都会为其打开至少独立的一个虚拟机这本身就很耗费内存，不能再耗费了
+
+- 什么造成 OOM？
+
+  - 图片等耗内存资源一次性加载过多
+
+  - Cusor、InputStream/outputStream、Bitmap 等对象使用后没有及时释放
+  - 长周期引用短周期、匿名内部类持有外部类等导致无法 GC
+
+- 如何解决 OOM？
+
+  - 使用 LruCache DiskLruCache 等缓存技术
+  - 使用软引用和弱引用来代替强引用
+  - 资源对象及时回收
+  - 使用 hashmap 等数据结构统一管理内存
+
+
+
+#### ANR ★
+
+- 系统中的 AMS 和 WMS 检测到应用程序在特定时间内无法响应屏幕、键盘，或者在特定事件未处理完毕
+  - 比如 5 s 内无法响应屏幕、键盘
+  - 或者前台广播 10s 未完成，以及后台广播 60s 未完成
+  - 对于前台服务 20s 没完成，或者后台服务 200s 内未完成
+  - 以及 contentProvider 的 publish 在 10s 内未执行完
+- 解决方法：使用线程池或开辟新进程，避免在 UI 线程里做耗时操作
 
 
 
