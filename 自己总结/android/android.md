@@ -107,8 +107,6 @@
 
 
 
-#### ThreadLocal 
-
 
 
 ## 四、线程
@@ -189,13 +187,105 @@
 
 ## 六、handler
 
-- Handler机制 
+
+
+#### [用一句话概括Handler，并简述其原理](https://www.cnblogs.com/angrycode/p/6576905.html)★
+
+- handler 主要是用来做线程与线程之间的异步通信，就比如说在子线程中进行下载等耗时长的任务容易导致 ANR，这时就需要在子线程中下载，并在主线程中更新 UI
+- handler 的原理主要是结合 Message Looper MessageQueue 来使用，而 Handler 的机制主要是一个生产者消费者模式。一开始调用 Handler 的构造方法时，其内部会执行 mLooper = Looper.myLooper() 来和所处的线程的 looper 绑定，所以如果所处线程没有 looper 会抛出异常，通知程序员在线程中调用 Looper.prepare() 创建 looper（调用其构造方法，创建 MessageQueue ，持有当前线程），这也就是为什么主线程可以直接使用 Looper 而子线程必须先调用 Looper.prepare() 再创建 Handler 的原因。
+- 当 Handler 调用 sendMessage 等发送方法时，最终都会调用到 MessageQueue 的 enqueueMessage 方法，向链表尾插一个所发的 Message 。与此同时在 Looper 被创建出来之后便会调用 loop 方法，这个方法里面是个 for(;;) 死循环，这个循环里会反复调用 queue 的 next 方法，而这个方法又回不断的从 MessageQueue 链表头取出元素
+- 调用 msg.target.dispatchMessage(msg); 方法，而这个 target 是 Message 的成员变量，是目标的 Hadler 对象，然后 Hadler 收到消息之后，先判断 Meaasge 的成员变量 Ruuable 是不是空，因为之前消息可能是 Handler 的 post(Runnable) 发送的，注意这个 handler 的 Runnable 叫做 callbak ，我们 handle 的dispatchMessage(msg)回西安判断是否为空， 如果不为空的话就调用直接调用 Handler 的 handleMessage 方法。如果为空，就调用 Handler 内部 Callback 接口的 handleMessage 方法发送消息，这就是 Handler 机制的内部原理
+
+
+
+#### 如何停止 loop 的轮循？★
+
+- 主要有两种方法，一种是 quit() 一种是 quitSafely()
+- quit 内部调用了 removeAllMessagesLocked 方法，这个方法会把 queue 中所有消息都清空，这样由于没消息，loop() 就会走到 else 里面，然后又因为他把标志位 设为 true 了，他会调用 diapose() ，这个方法里会调用 native 方法去更新底层消息队列
+- 相比之下 quitSafely 调用的 removeAllFutureMessagesLocked 方法，只会移除queue 中的延时消息，并将所有 非延时消息消息都派发去给 handler 处理，之后在结束
+- 但是有一点，不管调用 quit 和 quitSafely ，这时候 queue 就不会在接受任何消息了
+
+
+
+#### Android 为什么要使用 Handler 机制更新 UI
+
+- Android 的 UI 访问是不加锁的，而且每个控件也都不是线程安全的 ，如果多线程并发去修改 UI ，涉及到 JMM 可见行和并发安全问题，很容易导致界面错乱
+- 而如果对所有 UI 操作都加锁，又会导致性能的下降
+- 因此Android 设计出了单线程模型，根据这套模型，我们需要在主线程中修改 UI，而子线程和主线程间的通信就要使用 Handler 机制了
+
+
+
+#### [Android中子线程真的不能更新UI吗？](https://blog.csdn.net/xyh269/article/details/52728861)
+
+- 其实子线程在极端情况下是可以更新 UI 的，如果我们在 onCreate 的 setContentView 下瞬间创建一个线程并修改 UI 就能够通过
+- 这主要是因为我们在修改 UI 时，会对修改 UI 线程和 ViewRootImpl 所在线程进行检测，判断是否是同一个线程，也就是他的 checkThread 方法
+- 但我们从源码发现 ViewRootImpl 是在 onResume 方法里创建的，也就是说刚执行 onCreate 时还没有实例化 ViewRootImpl 也就更别谈检测，所以可以修改 UI，但是 200ms 后，随着 onResume ViewRootImpl 创建就不行了
+- 子线程的 runOnUIThread 虽然写在子线程里，但实际上还是在主线程中更新
+
+
+
+#### 一个Thread可以有几个Looper？几个Handler？
+- 一个线程只能有一个 Looper 但可以有无限个 Handler，由于每个 Message 持有名为 target 的目标 Handler 对象，所以 loop 轮循时可以把消息准确分发给各个 looper
+
+#### Message可以如何创建？哪种效果更好，为什么？
+- 只要有三种方法 new 、obtain()、obtainMessage()
+- 我们Android 中有一个全局的 Message Pool 消息池，所有用完待回收的 Message 都会现将字段置空（这里置空为了防止内存泄漏），然后存入 Message Pool 中，这个 Message Pool 是一个上限为 50 的链表，所以不用当心内存溢出
+- 而前一个方法就是直接 new新的 Message ，而后两个都是先判断当前 Message 的池 spool 是否有 Message ，有的话直接拿出来复用，没有的话才创建新的，更节约内存
+
+
+#### 主线程中Looper的轮询死循环为何没有阻塞主线程导致 ANR ？
+- 因为Android 是以事件驱动的，我们 ActivityYhread 的main 方法其实主要就是一个 while(true) 消息循环，而我们的 Lopper 在不断的接受事件、处理事件，可以说所有的事件事件都是在他的监控之下进行的
+- 所以如果它退出了，那整个 应用程序也就退出了，相反在主线程中做了耗时操作，导致下一次用户点击事件等消息无法处理，时间长了才是导致 ANR 的罪魁祸首。因此只能说是某个消息的处理，阻塞了 Looper.loop() 而不是。loop() 阻塞了消息的处理
+- 主线程只是负责从消息队列里读取、处理消息，当没有消息时就会被阻塞，而子线程往消息队列里增加消息，并且往管道里写文件时，主线程就会被唤醒。并从管道里读取数据，处理消息。也就是说主线程的存在只是为了读取消息，读取完毕再次随眠，因此 loop 循环并不会降低性能
+
+##### [Handler的post/send()的原理]()
+
+
+#### 使用 postDealy() 后消息队列会发生什么变化？
+- 在 MessageQueue 的 next 方法中，如果轮循道的消息的 msg.when 大于当前时间，会先计算出延时时间，再回到方法头部，调用 native 方法将其阻塞，在 msg.when - now 时间后自动唤醒，其过程相当于计时的 object.wait()
+
+
+#### [点击页面上的按钮后更新TextView的内容，谈谈你的理解？](https://blog.csdn.net/songzi1228/article/details/88713640)
+- 主线程更新 UI ，子线程不能（极端能），单线程模型
+- 子线程使用 handler 需要准备 Looper
+- Handler 使用不当导致内存泄漏 OOM （Handler 一般做内部类用，持有 Activity 引用，而耗时的子线程又持有 Handler 引用，导致子线程不结束 Activity 无法回收，采用事件监听Actvity 生命周期，其要停止时，关闭子线程，或者将 Handler 改为静态内部类，不持有 Activity 引用两种方案，但是第二种不能访问 Activity 的UI 控件，需要以弱引用 WeakReference 的形式持有 Activity 对象）
+- handler 刚要处理，页面已经退出了，报空指针异常
+- Message 使用优化 obtain()/obtainMessage()
+
+
+
+#### 关于ThreadLocal，谈谈你的理解？
+
+- ThreadLocal 不是 thread 而是 Thread 的局部变量，用于存储资源类，使得资源在各个线程都有拷贝，避免使用时被其他线程修改，其本质是 ThreadLocalMap
+- ThreadLocalMap 是以 数组的形式存储数据，其中的 key 值为 ThreadLocal，value 为所传入的值（value 是 obj 对象，啥值都有可能）
+- ThreadLocalMap 采用了内存泄漏的预防措施，每次调用。add、set、remove 的时候，就会移除所有 key == null 的 Entry
+- 避免使用 static 的 ThreadLocal，而且线程运行结束时，记得去清理一下 ThreadLocalMap 中 key == null 的 Entry
+
+
+
+#### ThreadLocal 跟HashMap类似，为什么不直接用HashMap呢？
+
+- ThreadLocal 的本质在于其内部类 ThreadLocalMap ，其 key 值只有 ThreadLocal 不需要考虑 hashMap 那么多情况
+- 结构简单，hash 冲突直接用 +1 和 -1
+
 
 
 
 ## 七、Binder
 
 
+
+#### [简单说一下Android的Binder机制?](https://blog.csdn.net/linmiansheng/article/details/37918333)
+
+- 在我们 Android 系统启动时，系统会孵化出第一个子进程 Zygote 而我们息息相关的 AMS PMS 等服务都运行在这个进程的各个线程中
+- 出于安全考虑，Android 系统会为每一个应用程序分配一个 UID ，让每个应用程序运行在一个独立的进程中，由于 Linux 的安全机制，这些进程是无法访问到上述服务的
+- 但我们的 App 和上述服务又有着千丝万缕的联系，所以就急需一种进程间通信的方式，而我们的 Binder 就是android 系统实现的进程间通信 IPC 方式
+
+
+
+#### Binder机制是怎么实现的呢？
+
+- 要弄清楚 Binder 的原理首先要搞清楚 Server 、 Client 、 ServerManager 、Binder 驱动的概念，其中 Server 和 Client 自不必说，即获取服务的客户端和提供服务的服务端
 
 
 
