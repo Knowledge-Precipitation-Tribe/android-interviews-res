@@ -25,3 +25,19 @@
 
 
 #### IPC
+
+
+
+
+
+## 设计模式
+
+
+
+#### [生产者消费者](https://www.cnblogs.com/conswin/p/6754085.html)
+
+
+
+
+
+#### [享元模式](https://blog.csdn.net/weixin_38810239/article/details/79441247)
