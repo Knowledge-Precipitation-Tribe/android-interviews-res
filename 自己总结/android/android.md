@@ -166,23 +166,88 @@
 
 
 #### 绘制过程 onLayout
-
-
+layout 方法的作用是用来确定 view 本身的位置，onLayout 方法用来确定所有子
+元素的位置，当 ViewGroup 的位置确定之后，它在 onLayout 中会遍历所有的子
+元素并调用其 layout 方法，在子元素的 layout 方法中 onLayout 方法又会被调
+用。layout 方法的流程是，首先通过 setFrame 方法确定 view 四个顶点的位置，
+然后 view 在父容器中的位置也就确定了，接着会调用 onLayout 方法，确定子
+元素的位置，onLayout 是个空方法，需要继承者去实现。
+getMeasuredHeight 和 getHeight 方法有什么区别？getMeasuredHeight（测量高
+度）形成于 view 的 measure 过程，getHeight（最终高度）形成于 layout 过程，
+在有些情况下，view 需要 measure 多次才能确定测量宽高，在前几次的测量过
+程中，得出的测量宽高有可能和最终宽高不一致，但是最终来说，还是会相
+同，有一种情况会导致两者值不一样，如下，此代码会导致 view 的最终宽高比
+测量宽高大 100px
+```java
+public void layout(int l,int t,int r, int b){
+ super.layout(l,t,r+100,b+100);}
+```
 
 
 
 #### 绘制过程 onDraw
+- View 的绘制过程遵循如下几步：
+a. 绘制背景 background.draw(canvas)
+b. 绘制自己（onDraw）
+c. 绘制 children（dispatchDraw）
+d. 绘制装饰（onDrawScrollBars）
+- View 绘制过程的传递是通过 dispatchDraw 来实现的，它会遍历所有的子元素的draw 方法，如此 draw 事件就一层一层的传递下去了
+- ps：view 有一个特殊的方法 setWillNotDraw，如果一个 view 不需要绘制内容，即不需要重写 onDraw 方法绘制，可以开启这个标记，系统会进行相应的优化。默认情况下，View 没有开启这个标记，默认认为需要实现 onDraw 方法绘制，当我们继承 ViewGroup 实现自定义控件，并且明确知道不需要具备绘制功能时，可以开启这个标记，如果我们重写了 onDraw,那么要显示的关闭这个标记
 
 
 
 
-
-#### 点击事件分发机制，onTouchEvent返回false? dispatchTouchEvent 返回 false? 
-
-
+#### 点击事件分发机制，[onTouchEvent返回false](https://blog.csdn.net/jianesrq0724/article/details/54908119)?[ dispatchTouchEvent 返回 false](https://blog.csdn.net/xyz_lmn/article/details/12517911)? 
+- 点击事件产生后，首先传递给 Activity 的 dispatchTouchEvent 方法，通过PhoneWindow 传递给 DecorView,然后再传递给根 ViewGroup,进入 ViewGroup 的dispatchTouchEvent 方法，执行 onInterceptTouchEvent 方法判断是否拦截，再不拦截的情况下，此时会遍历 ViewGroup 的子元素，进入子 View 的dispatchToucnEvent 方法，如果子 view 设置了 onTouchListener,就执行 onTouch方法，并根据 onTouch 的返回值为 true 还是 false 来决定是否执行onTouchEvent 方法，如果是 false 则继续执行 onTouchEvent，在 onTouchEvent的 Action Up 事件中判断，如果设置了 onClickListener ,就执行 onClick 方法。
 
 
-
+#### Android NestedScrolling解决滑动冲突
+- NestedScrollingChild侧
+	NestedScrollingChild(后面简称NC)处理MotionEvent(一般在onTouchEvent中，如果是ViewGroup还要注意onInterceptTouchEvent的处理，拦截滑动相关的MotionEvent事件)，分析用户滑动操作。
+	在滑动开始时，调用startNestedScroll找到联动此次滑动的NestedScrollingParent(后面简称NP)。
+	对于每次用户交互产生的滑动距离，先调用dispatchNestedPreScroll，询问联动NP是否预先处理此滑动，如果NP预先处理了，会给出消耗掉的滑动距离。
+	对于NP预处理剩下的滑动距离，NC决定自己是否处理部分或者全部距离(自己的滑动)。
+	如果NC自己滚动之后，还剩下部分滑动距离，则调用dispatchNestedScroll让NP自行选择是否处理最后剩下的这些滑动距离。
+	用户交互停止滑动，调用stopNestedScroll通知NC停止滑动联动。
+- NestedScrollingParent侧
+	在onStartNestedScroll中，决定是否与此次NC发起的滑动请求联动，如果决定联动，返回true，否则返回false。返回true之后，会收到onNestedScrollAccepted回调，表示NC同意与其联动，可以开始做初始化操作了；返回false之后，后面的NC联动操作不会通知此NestedScrollingParent(不会收到后续的onNestedPreScroll、onNestedScroll、onStopNestedScroll等)。
+	在onNestedPreScroll中，决定是否预处理滑动单步，并给出消耗掉的滑动距离(不处理则为0)。
+	在onNestedScroll中，决定是否消耗NC处理剩下的滑动距离。
+	在onStopNestedScroll做联动滑动收尾工作。
+	通过NC与NP的配合，可以做到很多复杂的滑动操作。只要分析了界面上外层视图与内层视图在滑动时的交互逻辑，就可以利用这两个接口实现。
+- fling的处理
+	相对于滑动操作，还有一个fling操作，也叫猛划，指用户拖住UI元素快速滑动之后抬手，这时会有一个fling事件，一般的操作逻辑是UI元素在抬手之后按照初始速度做减速运动。
+	NestedScroll 接口也提供了API处理fling事件，在NestedScrollingChild中dispatchNestedPreFling通知NP预处理fling事件，dispatchNestedFling通知NP后处理fling事件。
+```java
+boolean dispatchNestedPreFling(float velocityX, float velocityY);
+boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed);
+```
+NestedScrollingParent中对应的接口为onNestedPreFling、onNestedFling。
+```java
+boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY);
+boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed);
+```
+	通过这几个接口，可以让NC和NP各自对fling事件做出反应，但是不能像滑动事件一样联动。即不能先让NP预处理 部分 fling 速度，然后NC处理剩下的 部分 fling速度，再将最后剩下的交给NP继续处理。这种情况下，上层UI元素与下层UI元素缺乏交互，很难做到像滑动操作一样的UI效果(例如fling时先收起上层视图部分内容，再滑动下层视图)。
+- NestedScroll++
+	为了解决此问题，在support包 26.0.0-beta2 版本中引入了 NestedScroll 接口的升级版本(后面称为 NestedScroll++ ): NestedScrollingParent2、NestedScrollingChild2 。
+	在 NestedScroll++ 接口中，引入了touch type 的概念：对于用户手指触摸拖拽产生的滑动事件type为 ViewCompat.TYPE_TOUCH， fling产生的滑动事件 type 为 ViewCompat.TYPE_NON_TOUCH。滑动接口的相应API中加入了此 type 参数，如onNestedScroll接口改为：
+```java
+void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, @NestedScrollType int type);
+```
+	NestedScroll++ 接口中，对于滑动事件的处理，与 NestedScroll 接口一样，只是API中加入了 type 参数。
+	而对于fling事件的处理，不再依赖于 dispatchNestedPreFling、dispatchNestedFling、onNestedPreFling、onNestedFling等接口，而是选择使用与滑动事件相同的处理方式，只是 type 不同（为ViewCompat.TYPE_NON_TOUCH）。
+- 相应的交互逻辑改为：
+- NestedScrollingChild侧
+	在fling开始时，调用startNestedScroll找到联动此次滑动的NestedScrollingParent(后面简称NP)。
+每次刷新视图时，计算当前时间片由fling产生的滑动距离，先调用dispatchNestedPreScroll，询问联动NP是否预先处理此滑动距离，如果NP预先处理了，会给出消耗掉的滑动距离。
+对于NP预处理剩下的滑动距离，NC决定自己是否处理部分或者全部距离(自己的滑动)。
+如果NC自己滚动之后，还剩下部分滑动距离，则调用dispatchNestedScroll让NP自行选择是否处理最后剩下的这些滑动距离。
+	用户交互停止滑动，调用stopNestedScroll通知NC停止滑动联动。
+- NestedScrollingParent侧
+	在onStartNestedScroll中，决定是否与此次NC发起的fling联动请求，如果决定联动，返回 true ，否则返回 false 。返回true之后，会收到onNestedScrollAccepted回掉，表示NC同意与其联动，可以开始做初始化操作了；返回false之后，后面的NC联动操作不会通知此NestedScrollingParent(不会收到后续的onNestedPreScroll、onNestedScroll、onStopNestedScroll等)。
+	在onNestedPreScroll中，决定是否预处理fling产生的滑动距离，并给出消耗掉的滑动距离(不处理则为0)。
+	在onNestedScroll中，决定是否消耗NC处理剩下的滑动距离。
+	在onStopNestedScroll做联动滑动收尾工作。
 
 
 ## 六、handler
@@ -456,8 +521,6 @@
 - Android数据持久化 
 - 数据库怎么批处理（原理） 
 - SP支不支持多线程？SP怎么实现多线程 
-- **View绘制过程**  
-- Handler消息机制
 - Lint工具？
 - 进程间通信方式（与linux进程间通信区别） 
 - Socket怎么验证安全性 
