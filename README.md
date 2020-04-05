@@ -1,31 +1,70 @@
-#  android-interviews-res
+# 细碎知识点
 
-- 各大培训机构资源学习进度
 
-- 当前学的题目
+
 
 
 
 ## Android
 
-- View 滑动机制 ⭐️⭐️⭐️⭐️
-- View 的事件分发机制 ⭐️⭐️⭐️⭐️
-- View 的加载流程 ⭐️⭐️⭐️⭐️
-- 
+
+
+### Handler
 
 
 
- ## Java
+#### 如何在ThreadLocalMap中，ThreadLocal如何作为键值对中的key？
 
-- java 中 == 和 equals 和 hashcode 的区别⭐️⭐️
-- int、char、long 各占多少字节数⭐️⭐️
-- int 和 Integer 的区别⭐️⭐️
-- 谈谈对 Java 多态的理解⭐️⭐️
-- String、StringBuffer、StringBuilder 区别⭐️⭐️
+> - 通过ThreadLocal计算出Hash key，通过这个哈希值来进行存储和读取的。
+
+
+
+#### 如何获取到当前线程
+
+> - Thread.currentThread()`就是当前线程。
+
+
+
+#### Looper.loop()在什么情况下会退出？
+
+> 1. next方法返回的msg == null
+> 2. 线程意外终止
+
+
+
+####  Looper.loop()是如何阻塞的？MessageQueue.next()是如何阻塞的？ 
+
+> - 通过native方法：nativePollOnce()进行精准时间的阻塞。
+
+
+
+#### Handler.post的逻辑在哪个线程执行的，是由Looper所在线程还是Handler所在线程决定的？
+
+> - 由Looper所在线程决定的
+> - 最终逻辑是在Looper.loop()方法中，从MsgQueue中拿出msg，并且执行其逻辑，这是在Looper中执行的，因此有Looper所在线程决定。
+
+
+
+
+## Java
+
+
+
+
+
+
+
+
 
 
 
 ## 计网
+
+
+
+
+
+
 
 
 
