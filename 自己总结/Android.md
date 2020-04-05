@@ -35,23 +35,23 @@
 
 
 
-#### Activity的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。⭐️⭐️⭐️
+#### Activity 的启动模式，应用场景，然后举了很多微信的场景，让我去选择用那种启动模式，说下理由。⭐️⭐️⭐️⭐️
 
 - standard 普通
 - singleTop 栈顶复用，新闻
 - singleTask 栈内唯一，微信主页
 - singleInstance 操作系统全局唯一，闹钟提示
-- 两个栈 AC 一个栈， B 一个栈， C 切换到 B时，会先把栈切换成 AC 的栈，结果变成了 C 切换 A 的效果（Android 四大组件，类似微信效果）
+- 微信侧拉返回，两个栈 AC 一个栈， B 一个栈， C 切换到 B时，会先把栈切换成 AC 的栈，结果变成了 C 切换 A 的效果（Android 四大组件，类似微信效果）
 
 
 
 
 
-#### service 两种启动模式，区别⭐️⭐️⭐️
+#### service 两种启动模式，区别⭐️⭐️⭐️⭐️
 
 - 第一种是采用 startService 的方式，先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 startServive(intent) 开启，不用时调用 stopService(intent) 停止。
   - 所以其生命周期是 onCreate - onStartCommand - onDestroy，由于 onStart 已经过时，所以现在都是调用 onStartCommand。
-  - 注意已启动的 Service 不会再调用 onCreate 而是直接 onStartCommand，也从侧面说明，这种服务一旦启动酒喝调用者没有关系了，调用者也无法获取它的方法，除非调用 stopService 他会在后台一直跑
+  - 注意已启动的 Service 不会再调用 onCreate 而是直接 onStartCommand，也从侧面说明，这种服务一旦启动就和调用者没有关系了，调用者也无法获取它的方法，除非调用 stopService 他会在后台一直跑
 - 第二种是通过 BindService 绑定服务，其过程还是先写个类继承 Service ，然后再 Manifest 里申明这个 Service，使用时调用 bindService(intent, ServieConnection ,int) 开启，不用时调用 unBindService(ServiceConnection) 停止。
   - 它的生命周期是 onCreate - onBind - onUnBind - onDestroy，与 startService 启动不同，如果绑定者销毁了，它会自动 unBind 并销毁
   - 并且 onBind 会返回一个 Binder 对象，而这个 Binder 对象我们可以在 Service 里自定义，然后在 onBind 里放回，由于调用者绑定时需要传入实现 ServieConnection 接口的类或内部类，所以会在这个内部类的 onServiceConnected 回调里，获得 Service 对象，强转下即可使用
