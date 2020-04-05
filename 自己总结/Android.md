@@ -303,14 +303,27 @@ void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dx
 - 所以如果它退出了，那整个 应用程序也就退出了，相反在主线程中做了耗时操作，导致下一次用户点击事件等消息无法处理，时间长了才是导致 ANR 的罪魁祸首。因此只能说是某个消息的处理，阻塞了 Looper.loop() 而不是。loop() 阻塞了消息的处理
 - 主线程只是负责从消息队列里读取、处理消息，当没有消息时就会被阻塞，而子线程往消息队列里增加消息，并且往管道里写文件时，主线程就会被唤醒。并从管道里读取数据，处理消息。也就是说主线程的存在只是为了读取消息，读取完毕再次随眠，因此 loop 循环并不会降低性能
 
-##### [Handler的post/send()的原理]()
+
+#### Looper.loop()是如何阻塞的？MessageQueue.next()是如何阻塞的？ 
+- 通过native方法：nativePollOnce()进行精准时间的阻塞。
+
+
+#### [Handler的post/send()的原理]()
+- 通过一系列sendMessageXXX()方法将msg通过消息队列的enqueueMessage()加入到队列中。
 
 
 #### 使用 postDealy() 后消息队列会发生什么变化？
 - 在 MessageQueue 的 next 方法中，如果轮循道的消息的 msg.when 大于当前时间，会先计算出延时时间，再回到方法头部，调用 native 方法将其阻塞，在 msg.when - now 时间后自动唤醒，其过程相当于计时的 object.wait()
 
 
+#### Handler的post()和postDelayed()方法的异同？
+- 底层都是调用的sendMessageDelayed()
+- post()传入的时间参数为0
+- postDelayed()传入的时间参数是需要的时间间隔。
+
+
 #### [点击页面上的按钮后更新TextView的内容，谈谈你的理解？](https://blog.csdn.net/songzi1228/article/details/88713640)
+
 - 主线程更新 UI ，子线程不能（极端能），单线程模型
 - 子线程使用 handler 需要准备 Looper
 - Handler 使用不当导致内存泄漏 OOM （Handler 一般做内部类用，持有 Activity 引用，而耗时的子线程又持有 Handler 引用，导致子线程不结束 Activity 无法回收，采用事件监听Actvity 生命周期，其要停止时，关闭子线程，或者将 Handler 改为静态内部类，不持有 Activity 引用两种方案，但是第二种不能访问 Activity 的UI 控件，需要以弱引用 WeakReference 的形式持有 Activity 对象）
