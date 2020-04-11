@@ -41,9 +41,19 @@
 - singleTop 栈顶复用，新闻
 - singleTask 栈内唯一，微信主页
 - singleInstance 操作系统全局唯一，闹钟提示
-- 微信侧拉返回，两个栈 AC 一个栈， B 一个栈， C 切换到 B时，会先把栈切换成 AC 的栈，结果变成了 C 切换 A 的效果（Android 四大组件，类似微信效果）
+- singleInstance 问题一：微信侧拉返回，两个栈 AC 一个栈， B 一个栈， C 切换到 B时，会先把栈切换成 AC 的栈，结果变成了 C 切换 A 的效果（Android 四大组件，类似微信效果）
+- singleInstance 问题二：如果先跳转到 singleInstance 的Activity。再跳转到其他 Activity，会出现两个问题：一个是 singleInstance 不会 onDestroy ，二是跳转之后按 back 键徊直接绕开 singleInstance ，如果此时栈内为空，就会直接结束。
 
 
+
+
+
+
+
+#### 多次启动一个 App
+
+- 在launcher的startActivity中，对启动的inent加入了一个flag：Intent.FLAG_ACTIVITY_NEW_TASK,这个标记的作用是：
+- 首先会查找是否存在和被启动的Activity具有相同的亲和性的任务栈，如果有，刚直接把这个栈整体移动到前台，并保持栈中的状态不变，即栈中的activity顺序不变，如果没有，则新建一个栈来存放被启动的activity。
 
 
 
@@ -176,6 +186,19 @@ d. 绘制装饰（onDrawScrollBars）
 
 
 
+
+#### PX、DP、SP的区别
+
+- px ： 其实就是像素单位，比如我们通常说的手机分辨列表800\*400都是px的单位
+- sp ： 同dp相似，还会根据用户的字体大小偏好来缩放
+- dp ： 虚拟像素，dp = px * (dpi/160) ， dpi指的是每英寸上的显示点数，这个点数完全可以由厂商在软件上自己定，而和物理硬件无关。
+- dip： 同dp
+
+
+
+
+
+
 #### 点击事件分发机制，[onTouchEvent返回false](https://blog.csdn.net/jianesrq0724/article/details/54908119)?[ dispatchTouchEvent 返回 false](https://blog.csdn.net/xyz_lmn/article/details/12517911)? 
 - 点击事件产生后，首先传递给 Activity 的 dispatchTouchEvent 方法，通过PhoneWindow 传递给 DecorView,然后再传递给根 ViewGroup,进入 ViewGroup 的dispatchTouchEvent 方法，执行 onInterceptTouchEvent 方法判断是否拦截，再不拦截的情况下，此时会遍历 ViewGroup 的子元素，进入子 View 的dispatchToucnEvent 方法，如果子 view 设置了 onTouchListener,就执行 onTouch方法，并根据 onTouch 的返回值为 true 还是 false 来决定是否执行onTouchEvent 方法，如果是 false 则继续执行 onTouchEvent，在 onTouchEvent的 Action Up 事件中判断，如果设置了 onClickListener ,就执行 onClick 方法。
 
@@ -227,6 +250,33 @@ void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dx
 	在onNestedPreScroll中，决定是否预处理fling产生的滑动距离，并给出消耗掉的滑动距离(不处理则为0)。
 	在onNestedScroll中，决定是否消耗NC处理剩下的滑动距离。
 	在onStopNestedScroll做联动滑动收尾工作。
+
+
+### 动画
+
+
+#### 动画种类
+
+Android3.0之前有2种，3.0后有3种。
+
+- **FrameAnimation（逐帧动画）**：将多张图片组合起来进行播放，类似于早期电影的工作原理，很多App的loading是采用这种方式。
+- **TweenAnimation（补间动画）**：是对某个View进行一系列的动画的操作，包括淡入淡出（Alpha），缩放（Scale），平移（Translate），旋转（Rotate）四种模式。
+- **PropertyAnimation（属性动画）**：属性动画不再仅仅是一种视觉效果了，而是一种不断地对值进行操作的机制，并将值赋到指定对象的指定属性上，可以是任意对象的任意属性。
+
+
+
+#### 动画占用大量内存，如何优化？
+
+- **OOM问题** ：这个问题主要出现在帧动画中，当图片数量较多且图片较大时就极易出现OOM，这个在实际开发中要尤其注意，尽量避免使用帧动画。
+- **内存泄露** ：在属性动画中有一类无限循环的动画，这类动画需要在Activity退出时及时停止，否则将导致Activity无法释放从而造成内存泄露，通过验证后发现View动画并不存在此问题。
+
+
+
+#### `MotionLayout`
+
+[`MotionLayout`](https://developer.android.google.cn/reference/android/support/constraint/motion/MotionLayout) 类继承自 [`ConstraintLayout`](https://developer.android.google.cn/reference/android/support/constraint/ConstraintLayout.html) 类，允许你为各种状态之间的布局设置过渡动画。由于 `MotionLayout` 继承了 `ConstraintLayout`，因此可以直接在 `XML` 布局文件中使用 `MotionLayout` 替换 `ConstraintLayout`。
+
+`MotionLayout` 是完全声明式的，你可以完全在 `XML` 文件中描述一个复杂的过渡动画而 **无需任何代码**（如果您打算使用代码创建过渡动画，那建议您优先使用属性动画，而不是 `MotionLayout`）。
 
 
 ## 五、handler
