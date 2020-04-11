@@ -90,6 +90,22 @@
 
 
 
+#### Apk 打包流程
+
+1.   通过 aapt 打包 res 资源文件，生成 R.java、resources.arsc 和 res 文件（二进制 & 非二进制如res/raw和pic保持原样）
+2.   处理 .aidl 文件，生成对应的Java接口文件
+3.   通过 Java Compiler 编译 R.java、Java 接口文件、Java 源文件，生成 .class 文件
+4.   通过 dex命令，将.class文件和第三方库中的 .class 文件处理生成 classes.dex
+5.   通过 apkbuilder 工具，将 aapt 生成的resources.arsc和 res 文件、assets 文件和 classes.dex 一起打包生成apk
+6.   通过 Jarsigner 工具，对上面的 apk 进行 debug 或 release 签名
+7.   通过 zipalign 工具，将签名后的 apk 进行对齐处理。
+
+
+
+
+
+
+
 #### App 启动流程⭐️⭐️⭐️
 
 - 首先我们用户点击应用图标的时候，AMS 先会去检查系统中是否有支持该应用程序的进程，如果没有的话，择取通知 Zygote
