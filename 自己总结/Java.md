@@ -121,7 +121,7 @@ Throwable类中的常用方法
 
 
 
-#### 双亲委托模式
+#### 双亲委托模式/Java类加载器原理
 
 - 类加载器查找 class 所采用的是双亲委托模式，所谓双亲委托模式就是判断该类
 
@@ -173,8 +173,38 @@ ClassLoader 找到了该 Class,就会直接返回，如果没找到，则继续�
 
 
 
-## 二、虚拟机
 
+#### int、char、long 各占多少字节数
+
+int\float 占用 4 个字节，short\char 占用 2 个字节，long 占用 8 个字节，byte/boolean
+
+占用 1 个字节基本数据类型存放在栈里，包装类栈里存放的是对象的引用，即值的地址，而值存放在堆
+
+里。
+
+
+
+#### 谈谈对 java 多态的理解
+
+- 同一个消息可以根据发送对象的不同而采用多种不同的行为方式，在执行期间判断所引用
+
+的对象的实际类型，根据其实际的类型调用其相应的方法。
+
+作用：消除类型之间的耦合关系。实现多态的必要条件：继承、重写（因为必须调用父类
+
+中存在的方法）、父类引用指向子类对象
+
+
+
+#### String、StringBuffer、StringBuilder 区别
+
+- 都是字符串类，String 类中使用字符数组保存字符串，因有 final 修饰符，String 对象是不可变的，每次对 String 操作都会生成新的 String 对象，这样效率低，且浪费内存空间。但线程安全。
+
+- StringBuilder 和 StringBuffer 也是使用字符数组保存字符，但这两种对象都是可变的，即对字符串进行 append 操作，不会产生新的对象。它们的区别是：StringBuffer 对方法加了同步锁，是线程安全的，StringBuilder 非线程安全。
+
+
+
+## 二、虚拟机
 
 
 #### Dalvik 和ART是什么，有啥区别？⭐️⭐️
@@ -692,6 +722,7 @@ G1 收集器在后台维护了一个优先列表，每次根据允许的收集�
 2. hashmap 是线程不安全的，hashtable 加了 synchorized 同步锁线程安全
 3. hashmap 没加锁，所以比 hashtable 效率高
 4. hashmap 的 key 和 value 可以为空，但 hashtable 不行
+
 	- 原因是Hashtable使用的是安全失败机制（fail-safe），这种机制会使你此次读到的数据不一定是最新的数据。
 	- 如果你使用null值，就会使得其无法判断对应的key是不存在还是为空，因为你无法再调用一次contain(key）来对key是否存在进行判断，ConcurrentHashMap同理。
 5. hashmap 是用的自己定义的 hash算法，hashtable 是用 key 对象自己的 hashcode() 值
@@ -900,6 +931,13 @@ HashEntry跟HashMap差不多的，但是不同点是，他使用volatile去修�
 ## 七、[线程池](https://juejin.im/post/5e435ac3f265da57537ea7ba#heading-1)
 
 
+#### [CAS算法](https://blog.csdn.net/qq_34337272/article/details/81072874)
+
+- 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。CAS算法涉及到三个操作数
+  - 需要读写的内存值 V
+  - 进行比较的值 A
+  - 拟写入的新值 B
+
 
 #### 使用线程池有哪些好处？
 
@@ -925,31 +963,21 @@ HashEntry跟HashMap差不多的，但是不同点是，他使用volatile去修�
 使用线程池我们可以使用现有的 Executors，或者就是手动创建线程池，如果是手动创建就需要知道各个参数的设置。Executors创建线程池的话，要不就是对线程的数量没有控制，如CachedThreadPool，要不就是是无界队列，如FixedThreadPool。**对线程池数量和队列大小没有限制的话，容易导致OOM异常。**所以我们要自己手动创建线程池：
 
 - corePoolSize：核心线程数量，默认情况下每提交一个任务就会创建一个核心线程，直到核心线程的数量等于corePoolSize就不再创建。**线程池提供了两个方法可以提前创建核心线程，`prestartAllCoreThreads()`提前创建所有的核心线程，`prestartCoreThread`，提前创建一个核心线程**
-
+- maximumPoolSize：线程池允许创建的最大线程数。只有当线程池队列满的时候才会创建
 - maximumPoolSize：线程池允许创建的最大线程数。
-
 - keepAliveTime：线程池空闲状态可以等待的时间，默认对非核心线程生效，但是设置`allowCoreThreadTimeOut`的话对核心线程也生效
-
 - unit: 保活时间的单位，创建线程池的时候，`keepAliveTime = unit.toNanos(keepAliveTime)`
-
 - workQueue: 任务队列，用于保持或等待执行的任务阻塞队列。BlockingQueue的实现类即可，有无界队列和有界队列
 
-  - ArrayBlockingQueue: 基于数组结构的有界队列，此队列按FIFO原则对元素进行排序
+  - ArrayBlockingQueue: 基于数组结构的有界队列，此队列按FIFO原则（先入先出）对元素进行排序
   - LinkedBlockingQueue: 基于链表的阻塞队列，FIFO原则，吞吐量通常高于ArrayBlockingQueue.
   - SynchronousQueue: 不存储元素的阻塞队列。每个插入必须要等到另一个线程调用移除操作。
   - PriorityBlockingQueue: 具有优先级的无阻塞队列
-
 - threadFactory： 用于设置创建线程的工厂。
-
-- handler：拒绝策略，当队列线程池都满了，必须采用一种策略来处理还要提交的任务。
-
-  在实际应用中，我们可以将信息记录到日志，来分析系统的负载和任务丢失情况
-
-  JDK中提供了4中策略：
-
-  - AbortPolicy: 直接抛出异常
+- handler：拒绝策略，当队列线程池都满了，必须采用一种策略来处理还要提交的任务。在实际应用中，我们可以将信息记录到日志，来分析系统的负载和任务丢失情况，JDK中提供了4中策略：
+- AbortPolicy: 直接抛出异常
   - CallerRunsPolicy: 只用调用者所在的线程来运行任务
-  - DiscardOldestPolicy： 丢弃队列中最老的一个人任务，并执行当前任务。
+- DiscardOldestPolicy： 丢弃队列中最老的一个人任务，并执行当前任务。
   - DiscardPolicy: 直接丢弃新进来的任务
 
 
@@ -1083,7 +1111,7 @@ private static int ctlOf(int rs, int wc) { return rs | wc; }
 
 Worker类实现了Runnable方法，**在成功创建Worker线程后就会调用其start方法。**
 
-```
+```java
 w = new Worker(firstTask);
 final Thread t = w.thread;   //理解为 w.thread = new Thread(w)
 if (workerAdded) {
@@ -1110,7 +1138,7 @@ Worker线程运行时执行runWorker方法，里面主要事情：
 
 简单来说就是不断的从任务队列中取任务，如果取不到，那么就退出当前的线程，取到任务就执行任务。
 
-```
+```java
     final void runWorker(Worker w) {
         Thread wt = Thread.currentThread();
         
@@ -1152,13 +1180,7 @@ Worker线程运行时执行runWorker方法，里面主要事情：
             processWorkerExit(w, completedAbruptly);
         }
     }
-
-复制代码
 ```
-
-
-
-
 
 
 
@@ -1192,14 +1214,14 @@ workQueue.take()方法会一直阻塞当前的队列直到有任务的出现，�
 
 
 
-
-
 #### 如何提前创建核心线程数？
 
 上面提到了，有两个方法：
 
 - `prestartAllCoreThreads()`提前创建所有的核心线程
 - `prestartCoreThread`，提前创建一个核心线程，如果当前线程数量大于corePoolSize，则不创建
+
+
 
 #### 线程池异常退出与自动退出的区别？
 
@@ -1225,7 +1247,9 @@ int c = ctl.get();
 复制代码
 ```
 
-#### 线程池shutdown与shutdownNow有什么区别？
+
+
+#### 线程池 shutdown 与 shutdownNow 有什么区别？
 
 看代码主要三个区别：
 
