@@ -931,7 +931,6 @@ HashEntry跟HashMap差不多的，但是不同点是，他使用volatile去修�
 使用线程池我们可以使用现有的 Executors，或者就是手动创建线程池，如果是手动创建就需要知道各个参数的设置。Executors创建线程池的话，要不就是对线程的数量没有控制，如CachedThreadPool，要不就是是无界队列，如FixedThreadPool。**对线程池数量和队列大小没有限制的话，容易导致OOM异常。**所以我们要自己手动创建线程池：
 
 - corePoolSize：核心线程数量，默认情况下每提交一个任务就会创建一个核心线程，直到核心线程的数量等于corePoolSize就不再创建。**线程池提供了两个方法可以提前创建核心线程，`prestartAllCoreThreads()`提前创建所有的核心线程，`prestartCoreThread`，提前创建一个核心线程**
-<<<<<<< HEAD
 - maximumPoolSize：线程池允许创建的最大线程数。只有当线程池队列满的时候才会创建
 - maximumPoolSize：线程池允许创建的最大线程数。
 - keepAliveTime：线程池空闲状态可以等待的时间，默认对非核心线程生效，但是设置`allowCoreThreadTimeOut`的话对核心线程也生效
