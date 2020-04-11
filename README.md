@@ -1,86 +1,59 @@
-# 细碎知识点
+# 個人開源項目
 
 
 
+## EyeFind
 
+#### Thread 内存泄漏/空指针
 
+- Handler 内存泄漏 - 静态内部类 - 无法访问 activity 方法 - 软引用（讲下四大引用）
+- handleMessage 时，活动已释放 - 空指针 - onDestroy 释放
+- 线程太多了，反复创建销毁速度太慢，线程池提高线程复用（线程池原理）
 
-## Android
+- 线程池种 Thread 停止  - hashSet - key used WeakReference<Thread> - onDestroy 遍历销毁
+- 每个 Activity/fragment 一个线程池，相同图片存在不同线程池里，全局单例线程池 - 懒加载（讲下各种单例，线程安全）
 
 
 
-### Handler
+#### 图片压缩
 
+- OOM - 先把 Bittmap 读进来压缩后后显示 - （ Android 3.2后相机默认 SRGB-8888 ）RGB-565
+- 如果超大图还没压缩就崩溃 - 查百度发现 Resource 图片可以设置固定 options.inSampleSize  
+- 类比 stream 的形式，用decodestream(inputstream, null, options) 设置 insameplesize
+- 由于大小参差不齐固定的压缩结果有差距 - 加载时设置 inJustDecodeBounds - 再测量 inSampleSize（ 原图和 item（固定 80dp）比例）
+- 后期由于 Bmob 图片不让用了，换了随机图片。由于每次读的图片不一样，而且 stream 流只能读一次，所以每次测只能设置设固定的 inSampleSize（10）
 
 
-#### 如何在ThreadLocalMap中，ThreadLocal如何作为键值对中的key？
 
-> - 通过ThreadLocal计算出Hash key，通过这个哈希值来进行存储和读取的。
+#### 图片缓存
 
+- 每次下载耗时且耗流量 - 特别是大图需要读两次流 - 引入 LruCache 存压缩过的图片（不压缩太大存不了几张）
+- 第一次下载时还是从网上下载，消耗大量流量 - （比如个人拾取，每次打开基本没变化）引入 DiskLruCache
+- 加载先去内存，没有去硬盘，没有去下载，再存内存，再存硬盘
 
 
-#### 如何获取到当前线程
 
-> - Thread.currentThread()`就是当前线程。
 
 
+## SitUp
 
-#### Looper.loop()在什么情况下会退出？
 
-> 1. next方法返回的msg == null
-> 2. 线程意外终止
 
+#### Tinker 原理
 
+- 解决 Bug ：下载补丁，通过类加载机制，覆盖掉之前的 class
+- Tinker做了对应的DexDiff、ResDiff、BsDiff来产出一个patch.apk,里面具体内容也是由lib、res和dex文件组成，assets中还有对应的dex、res和so信息
+- 运行时通过反射把这个合成dex文件插入到PathClassLoader中的dexElements数组的前面，保证类加载时优先加载补丁dex中的class。
 
-####  Looper.loop()是如何阻塞的？MessageQueue.next()是如何阻塞的？ 
 
-> - 通过native方法：nativePollOnce()进行精准时间的阻塞。
 
+#### 封装 View
 
+- 
 
-#### Handler.post的逻辑在哪个线程执行的，是由Looper所在线程还是Handler所在线程决定的？
 
-> - 由Looper所在线程决定的
-> - 最终逻辑是在Looper.loop()方法中，从MsgQueue中拿出msg，并且执行其逻辑，这是在Looper中执行的，因此有Looper所在线程决定。
 
-
-
-
-## Java
-
-
-
-
-
-
-
-
-
-
-
-## 计网
-
-
-
-
-
-
-
-
-
-
-
-## 算法
-
-
-
-
-
-
-
-
-
-
+#### Glide
 
 
 
