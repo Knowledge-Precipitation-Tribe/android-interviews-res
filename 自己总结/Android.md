@@ -125,30 +125,7 @@
 
 
 
-
-
-## 四、线程
-
-
-
-#### 线程池的好处? ★
-
-- 提高反应速度
-- 减少频繁创建线程带来的资源开销
-- 对多线程进行统一管理、调度
-
-
-
-#### 几种常见的线程池 ★
-
-- FixedThreadPool：有固定数量的核心线程，没有非核心线程，且核心线程不会被回收。当有对象来时，先检查核心线程有没有空闲，有空闲直接加入，没有的话加入排队队列
-- SingleThreadPool：有且只有一个核心线程，当有新线程来时，如何没有核心线程则进行创建，如果核心线程正在运行则加入等待队列，保证了线程的有序进行
-- CachedThreadPool：没有核心线程，所有的线程都是非核心线程，线程来时即加入运行，用完释放，且最大线程数为 Integer.MAX_VALUE ，适合大量耗时短的任务
-- ScheduledThreadPool：有固定数量的核心线程，且核心线程数与非核形线程总数最大 Integer.MAX_VALUE
-
-
-
-## 五、View
+## 四、View
 
 
 
@@ -268,7 +245,7 @@ void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dx
 	在onStopNestedScroll做联动滑动收尾工作。
 
 
-## 六、handler
+## 五、handler
 
 
 
