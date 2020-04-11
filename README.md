@@ -43,17 +43,33 @@
 
 - 解决 Bug ：下载补丁，通过类加载机制，覆盖掉之前的 class
 - Tinker做了对应的DexDiff、ResDiff、BsDiff来产出一个patch.apk,里面具体内容也是由lib、res和dex文件组成，assets中还有对应的dex、res和so信息
+- 在android系统中有两种classload，分别是PathClassLoader和DexClassLoader，它们都继承自BaseDexClassLoader
+- Android系统通过PathClassLoader来加载系统类和主dex中的类。而DexClassLoader则可用于加载指定路径的apk、jar或dex文件。
+- 系统在加载一个类的时候其实是从一个dex数组去加载的，当在前面的dex文件加载到这个类的时候就会把这个类返回而不会去管后面的dex文件
 - 运行时通过反射把这个合成dex文件插入到PathClassLoader中的dexElements数组的前面，保证类加载时优先加载补丁dex中的class。
+- 对比 AndFix（阿里）
+- ![](https://img-blog.csdn.net/20151113113141551)
+
+- 对比
+- ![](https://pic1.zhimg.com/80/v2-e0f58ddb754f67ef0c2974d4b7c069b8_720w.jpg)
 
 
 
-#### 封装 View
+#### 封装 - View - RecyclerView
+
+- 
+
+
+
+#### ARouter
 
 - 
 
 
 
 #### Glide
+
+- 
 
 
 
