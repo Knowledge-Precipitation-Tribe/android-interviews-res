@@ -76,83 +76,6 @@ Throwable类中的常用方法
 
 
 
-
-
-
-#### 对象的加载过程？（类的初始化此过程）
-
-- 类加载过程主要包含加载、验证、准备、解析、初始化、使用、卸载七个方
-
-面，下面一一阐述。
-
-1. 加载：获取定义此类的二进制字节流，生成这个类的 java.lang.Class 对象
-
-2. 验证：保证 Class 文件的字节流包含的信息符合 JVM 规范，不会给 JVM 造成
-
-危害
-
-3. 准备：准备阶段为变量分配内存并设置类变量的初始化
-
-4. 解析：解析过程是将常量池内的符号引用替换成直接引用
-
-5. 初始化：不同于准备阶段，本次初始化，是根据程序员通过程序制定的计划
-
-去初始化类的变量和其他资源。这些资源有 static{}块，构造函数，父类的初始
-
-化等
-
-6. 使用：使用过程就是根据程序定义的行为执行
-
-7. 卸载：卸载由 GC 完成。
-
-
-
-#### 什么情况下会触发类的初始化
-
-1、 遇到 new，getstatic，putstatic，invokestatic 这 4 条指令；
-
-2、 使用 java.lang.reflect 包的方法对类进行反射调用；
-
-3、 初始化一个类的时候，如果发现其父类没有进行过初始化，则先初始化其父类（注意！如果其父类是接口的话，则不要求初始化父类）；
-
-4、 当虚拟机启动时，用户需要指定一个要执行的主类（包含 main 方法的那个类），虚拟机会先初始化这个主类；
-
-5、 当使用 jdk1.7 的动态语言支持时，如果一个 java.lang.invoke.MethodHandle实例最后的解析结果 REF_getstatic，REF_putstatic,REF_invokeStatic 的方法句柄，并且这个方法句柄所对应的类没有进行过初始化，则先触发其类初始化
-
-
-
-#### 双亲委托模式/Java类加载器原理
-
-- 类加载器查找 class 所采用的是双亲委托模式，所谓双亲委托模式就是判断该类
-
-是否已经加载，如果没有则不是自身去查找而是委托给父加载器进行查找，这
-
-样依次进行递归，直到委托到最顶层的 Bootstrap ClassLoader,如果 Bootstrap
-
-ClassLoader 找到了该 Class,就会直接返回，如果没找到，则继续依次向下查找，
-
-如果还没找到则最后交给自身去查找
-
-
-
-
-
-####  双亲委托模式的好处
-
-1. 避免重复加载，如果已经加载过一次 Class，则不需要再次加载，而是直接读
-
-取已经加载的 Class
-
-2. 更加安全，确保，java 核心 api 中定义类型不会被随意替换，比如，采用双亲
-
-委托模式可以使得系统在 Java 虚拟机启动时旧加载了 String 类，也就无法用自
-
-定义的 String 类来替换系统的 String 类，这样便可以防止核心 API 库被随意篡
-
-改
-
-
-
 #### volatile的特性是啥？
 
 - 保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。（实现可见性）
@@ -204,7 +127,332 @@ int\float 占用 4 个字节，short\char 占用 2 个字节，long 占用 8 个
 
 
 
-## 二、虚拟机
+## 二、类 / 对象
+
+
+
+### 2.1 类加载器
+
+
+
+
+#### 对象的加载过程？（类的初始化此过程）
+
+- 类加载过程主要包含加载、验证、准备、解析、初始化、使用、卸载七个方
+
+面，下面一一阐述。
+
+1. 加载：获取定义此类的二进制字节流，生成这个类的 java.lang.Class 对象
+
+2. 验证：保证 Class 文件的字节流包含的信息符合 JVM 规范，不会给 JVM 造成
+
+危害
+
+3. 准备：准备阶段为变量分配内存并设置类变量的初始化
+
+4. 解析：解析过程是将常量池内的符号引用替换成直接引用
+
+5. 初始化：不同于准备阶段，本次初始化，是根据程序员通过程序制定的计划
+
+去初始化类的变量和其他资源。这些资源有 static{}块，构造函数，父类的初始
+
+化等
+
+6. 使用：使用过程就是根据程序定义的行为执行
+
+7. 卸载：卸载由 GC 完成。
+
+
+
+#### 什么情况下会触发类的初始化
+
+1、 遇到 new，getstatic，putstatic，invokestatic 这 4 条指令；
+
+2、 使用 java.lang.reflect 包的方法对类进行反射调用；
+
+3、 初始化一个类的时候，如果发现其父类没有进行过初始化，则先初始化其父类（注意！如果其父类是接口的话，则不要求初始化父类）；
+
+4、 当虚拟机启动时，用户需要指定一个要执行的主类（包含 main 方法的那个类），虚拟机会先初始化这个主类；
+
+5、 当使用 jdk1.7 的动态语言支持时，如果一个 java.lang.invoke.MethodHandle实例最后的解析结果 REF_getstatic，REF_putstatic,REF_invokeStatic 的方法句柄，并且这个方法句柄所对应的类没有进行过初始化，则先触发其类初始化
+
+
+
+#### 双亲委托模式 / Java 类加载器原理
+
+- 类加载器查找 class 所采用的是双亲委托模式，所谓双亲委托模式就是判断该类是否已经加载，如果没有则不是自身去查找而是委托给父加载器进行查找，这样依次进行递归，直到委托到最顶层的 Bootstrap ClassLoader ,如果 BootstrapClassLoader 找到了该 Class,就会直接返回，如果没找到，则继续依次向下查找，如果还没找到则最后交给自身去查找
+
+
+
+
+
+####  双亲委托模式的好处
+
+1. 避免重复加载，如果已经加载过一次 Class，则不需要再次加载，而是直接读取已经加载的 Class
+
+2. 更加安全，确保，java 核心 api 中定义类型不会被随意替换，比如，采用双亲委托模式可以使得系统在 Java 虚拟机启动时旧加载了 String 类，也就无法用自定义的 String 类来替换系统的 String 类，这样便可以防止核心 API 库被随意篡改
+
+
+
+
+
+#### 种类 - 四大类加载器
+
+- 引导类加载器（bootstrap class loader）：它用来加载 Java 的核心库，是用原生代码来实现的，并不继承自 `java.lang.ClassLoader`。
+- 扩展类加载器（extensions class loader）：它用来加载 Java 的扩展库。Java 虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面查找并加载 Java 类。
+- 系统类加载器（system class loader）：它根据 Java 应用的类路径（CLASSPATH）来加载 Java 类。一般来说，Java 应用的类都是由它来完成加载的。可以通过 `ClassLoader.getSystemClassLoader()`来获取它。
+
+- 除了系统提供的类加载器以外，开发人员可以通过继承  `java.lang.ClassLoader` 类的方式实现自己的类加载器，以满足一些特殊的需求。
+
+
+
+### 2.2 ART 加载器
+
+
+
+#### 四大类加载器
+
+- PathClassLoader: 主要用于系统和app的类加载器,其中optimizedDirectory为null, 采用默认目录/data/dalvik-cache/
+- DexClassLoader: 可以从包含classes.dex的jar或者apk中，加载类的类加载器, 可用于执行动态加载,但必须是app私有可写目录来缓存odex文件. 能够加载系统没有安装的apk或者jar文件， 因此很多插件化方案都是采用DexClassLoader;
+- BaseDexClassLoader: 比较基础的类加载器, PathClassLoader和DexClassLoader都只是在构造函数上对其简单封装而已.
+- BootClassLoader: 作为父类的类构造器。
+
+
+
+####  [PathClassLoader](http://gityuan.com/2017/03/19/android-classloader/#%E4%B8%89-pathclassloader%E5%8A%A0%E8%BD%BD%E7%B1%BB%E7%9A%84%E8%BF%87%E7%A8%8B)
+
+  - PathClassLoader 比较简单, 继承于 BaseDexClassLoader . 封装了一下构造函数, 默认 optimizedDirectory = null
+
+  - ```java
+    public class PathClassLoader extends BaseDexClassLoader {
+    
+        public PathClassLoader(String dexPath, ClassLoader parent) {
+            super(dexPath, null, null, parent);
+        }
+    
+        public PathClassLoader(String dexPath, String libraryPath,
+                ClassLoader parent) {
+            super(dexPath, null, libraryPath, parent);
+        }
+    }
+    ```
+
+
+
+#### DexClassLoader
+
+  - DexClassLoader也同样,只是简单地封装了BaseDexClassLoader对象,并没有覆写父类的任何方法.
+
+  - ```java
+    public class DexClassLoader extends BaseDexClassLoader {
+    
+        public DexClassLoader(String dexPath, String optimizedDirectory,
+                String libraryPath, ClassLoader parent) {
+            super(dexPath, new File(optimizedDirectory), libraryPath, parent);
+        }
+    }
+    ```
+
+
+
+#### BaseDexClassLoader
+
+  - BaseDexClassLoader构造函数, 有一个非常重要的过程, 那就是初始化DexPathList对象.
+
+    另外该构造函数的参数说明:
+
+    - dexPath: 包含目标类或资源的apk/jar列表;当有多个路径则采用:分割;
+    - optimizedDirectory: 优化后dex文件存在的目录, 可以为null;
+    - libraryPath: native库所在路径列表;当有多个路径则采用:分割;
+    - ClassLoader:父类的类加载器.
+
+  - ```java
+    public class BaseDexClassLoader extends ClassLoader {
+        private final DexPathList pathList;  //记录dex文件路径信息
+    
+        public BaseDexClassLoader(String dexPath, File optimizedDirectory, String libraryPath, ClassLoader parent) {
+            super(parent);
+            this.pathList = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
+        }
+    }
+    ```
+
+
+
+#### BootClassLoader
+
+- ```java
+  class BootClassLoader extends ClassLoader {
+      private static BootClassLoader instance;
+  
+      public static synchronized BootClassLoader getInstance() {
+          if (instance == null) {
+              instance = new BootClassLoader();
+          }
+  
+          return instance;
+      }
+  
+      public BootClassLoader() {
+          super(null, true);
+      } }
+  ```
+
+
+
+#### ClassLoader
+
+- ```java
+  public abstract class ClassLoader {
+      private ClassLoader parent;  //记录父类加载器
+  
+      protected ClassLoader() {
+          this(getSystemClassLoader(), false); //见下文
+      }
+  
+      protected ClassLoader(ClassLoader parentLoader) {
+          this(parentLoader, false);
+      }
+  
+      ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
+          if (parentLoader == null && !nullAllowed) {
+              //父类的类加载器为空,则抛出异常
+              throw new NullPointerException("parentLoader == null && !nullAllowed");
+          }
+          parent = parentLoader;
+      }
+  }
+  ```
+
+- 再来看看SystemClassLoader，这里的getSystemClassLoader()返回的是PathClassLoader类。
+
+- ```java
+  public abstract class ClassLoader {
+  
+      static private class SystemClassLoader {
+          public static ClassLoader loader = ClassLoader.createSystemClassLoader();
+      }
+  
+      public static ClassLoader getSystemClassLoader() {
+          return SystemClassLoader.loader;
+      }
+  
+      private static ClassLoader createSystemClassLoader() {
+          //此处classPath默认值为"."
+          String classPath = System.getProperty("java.class.path", ".");
+          // BootClassLoader见小节2.5
+          return new PathClassLoader(classPath, BootClassLoader.getInstance());
+      }
+  }
+  ```
+
+- ![](http://gityuan.com/images/classloader/classloader.jpg)
+
+
+
+#### ClassNotFound原因：
+
+- ABI异常：常见在系统APP，为了减小system分区大小会将apk源文件中的classes.dex文件移除，对于既然可运行在64位又可运行在32位模式的应用，当被强制设置32位时，openDexFileNative在查找不到oat文件时会运行在解释模式，而classes.dex文件不再则出现ClassNotFound异常。
+- MultiDex处理不当，由于每个Dex文件中方法个数不能超过65536，引入MultiDex机制。dex2oat会自动查找Apk文件中的classes.dex，classes2.dex，…classesN.dex等文件，编译到/data/dalvik-cache下生成oat文件。这里需要文件名跟classesN.dex格式，并且一定要与classes.dex一起放置在第一级目录，有些APP不按照要求来，导致ClassNotFound异常。
+
+
+
+
+
+### 2.3 引用和回收
+
+
+
+#### 如何判断对象是否死亡（两种方法）。
+
+- 引用计数法
+
+  - 它是给每个对象中添加一个引用计数器, 然后每当有一个计数器引用它时, 这个计数器值就加1; 当引用失效时, 计数器的值就减1; 然后计数器为 0 的对象（任何时刻）都是不可能再被使用的. 垃圾回收器就可以进行回收.
+
+  - 优点:引用计数法的原理实现简单,	但效率比较低,  不过它大多数情况下都是个不错的算法, 例如微软的COM(component Object Model)技术, 使用ActionScript3的FlashPlayer,Python语言等领域都用了引用计数算法进行内存管理.
+
+  - 缺点:很难解决对象之间的相互循环引用的问题
+
+-  可达性分析算法
+  在Java,C#,等语言中,都是通过可达性分析算法来判断对象是否存活.
+
+  - 思想:通过一系"GC Roots"的对象作为起始点,从这些节点开始向下搜索, 搜索走过的路径称为引用链,当一个对象到GC Roots没有任何引用链时,则证明此对象已经死亡(不可用)，可以进行回收
+
+![](https://img-blog.csdnimg.cn/20190814220752116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xxMTc1OTMzNjk1MA==,size_16,color_FFFFFF,t_70)
+
+Java 中，比如：
+
+1. 虚拟机栈中 (栈帧中的本地变量表) 引用的对象;
+
+2. 方法区中类静态属性引用的对象
+
+3. 方法区中常量引用0的对象
+
+4. 本地方法栈中JNI(即native方法)引用的对象
+   引用的分类:强引用,软引用,弱引用,虚引用
+
+都可以可作为GC Roots的对象。
+
+
+
+#### 如何判断一个常量是废弃常量
+
+- **运行时常量池主要回收的是废弃的常量。**那么，我们如何判断一个常量是废弃常量呢？
+
+- 假如在常量池中存在字符串 “abc”，如果当前没有任何 String 对象引用该字符串常量的话，就说明常量 “abc” 就是废弃常量，如果这时发生内存回收的话而且有必要的话，“abc” 就会被系统清理出常量池。
+
+- JDK1.7 及之后版本的 JVM 已经将运行时常量池从方法区中移了出来，在 Java 堆（Heap）中开辟了一块区域存放运行时常量池。
+
+
+
+#### 如何判断一个类是无用的类
+
+- 方法区主要是放类的 Class 文件的
+- 如果这个类所有的实例都已经被回收，那么 Java 堆中就不会存在该类的任何实例。
+- 然后加载该类的 ClassLoader 也已经被回收。
+- 该类的 java.lang.Class 对象没有在任何地方被引用，也无法在任何地方通过反射访问该类的方法。
+- 这几种情况都满足的话就可以回收，但不是一定会回收
+
+
+
+
+#### 强引用、软引用、弱引用、虚引用
+
+- **1．强引用**
+
+  就是我们大部分使用引用一般都是强引用。如果一个对象使用强引用，那垃圾回收器就一定不会回收它。即使是内存空间不足的时候，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，让我们的程序异常终止，也不会回收具有强引用的对象来解决内存不足问题
+
+- **2．软引用（SoftReference）**
+
+  如果一个对象是软引用，当内存空间足够，垃圾回收器不会回收它，但是一旦内存空间不够了，就会回收这些对象的内存。所以软引用可用来实现内存敏感的高速缓存，够的时候用，不够时释放。
+
+  （ 软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收，JAVA 虚拟机就会把这个软引用加入到与之关联的引用队列中。）
+
+- **3．弱引用（WeakReference）**
+
+  弱引用类似于软引用。**弱引用与软引用的区别在于：弱引用的对象拥有更短暂的生命周期**。**在垃圾回收器线程扫描它 所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。**不过，由于垃圾回收器是一个优先级很低的线程， 因此不一定会很快发现那些只具有弱引用的对象。
+
+  （弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java 虚拟机就会把这个弱引用加入到与之关联的引用队列中。）
+
+- **4．虚引用（PhantomReference）**
+
+  “虚引用” 顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收。
+
+  虚引用主要用来跟踪对象被垃圾回收的活动。
+
+- **5．虚引用与软引用和弱引用的一个区别：**
+
+  虚引用必须和引用队列（ReferenceQueue）联合使用。当垃 圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是 否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要的行动。
+
+  特别注意，在程序设计中一般很少使用弱引用与虚引用，使用软引用的情况较多，这是因为软引用可以加速 JVM 对垃圾内存的回收速度，可以维护系统的运行安全，防止内存溢出（OutOfMemory）等问题的产生。
+
+![](https://img-blog.csdn.net/20180606220747457?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1bmp1bmJhMjY4OQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+
+
+
+
+## 三、虚拟机
 
 
 #### Dalvik 和ART是什么，有啥区别？⭐️⭐️
@@ -244,27 +492,8 @@ Java堆：保存Java对象的地方，细分为 Eden区， From Survivor空间�
 
 #### JMM -  Java 内存模型
 
-- Java 内存模型(即 Java Memory Model，简称 JMM)本身是一种抽象的概念，并不
-
-真实存在，它描述的是一组规则或规范，通过这组规范定义了程序中各个变量
-
-（包括实例字段，静态字段和构成数组对象的元素）的访问方式。由于 JVM 运
-
-行程序的实体是线程，而每个线程创建时 JVM 都会为其创建一个工作内存(有些
-
-地方称为栈空间)，用于存储线程私有的数据，而 Java 内存模型中规定所有变量
-
-都存储在主内存，主内存是共享内存区域，所有线程都可以访问，但线程对变
-
-量的操作(读取赋值等)必须在工作内存中进行，首先要将变量从主内存拷贝的自
-
-己的工作内存空间，然后对变量进行操作，操作完成后再将变量写回主内存，
-
-不能直接操作主内存中的变量，工作内存中存储着主内存中的变量副本拷贝，
-
-前面说过，工作内存是每个线程的私有数据区域，因此不同的线程间无法访问
-
-对方的工作内存，线程间的通信(传值)必须通过主内存来完成
+- Java 内存模型(即 Java Memory Model，简称 JMM)本身是一种抽象的概念，并不真实存在，它描述的是一组规则或规范，通过这组规范定义了程序中各个变量（包括实例字段，静态字段和构成数组对象的元素）的访问方式。
+- 由于 JVM 运行程序的实体是线程，而每个线程创建时 JVM 都会为其创建一个工作内存(有些地方称为栈空间)，用于存储线程私有的数据，而 Java 内存模型中规定所有变量都存储在主内存，主内存是共享内存区域，所有线程都可以访问，但线程对变量的操作(读取赋值等)必须在工作内存中进行，首先要将变量从主内存拷贝的自己的工作内存空间，然后对变量进行操作，操作完成后再将变量写回主内存，不能直接操作主内存中的变量，工作内存中存储着主内存中的变量副本拷贝，前面说过，工作内存是每个线程的私有数据区域，因此不同的线程间无法访问对方的工作内存，线程间的通信(传值)必须通过主内存来完成
 
 
 
@@ -272,130 +501,15 @@ Java堆：保存Java对象的地方，细分为 Eden区， From Survivor空间�
 
 #### 原子性 可见性 有序性
 
-- 原子性：对基本数据类型的读取和赋值操作是原子性操作，这些操作不可被中
+- 原子性：对基本数据类型的读取和赋值操作是原子性操作，这些操作不可被中断，是一步到位的，例如 x=3 是原子性操作，而 y = x 就不是，它包含两步：第一读取 x，第二将 x 写入工作内存；x++也不是原子性操作，它包含三部，第一，读取 x，第二，对 x 加 1，第三，写入内存。原子性操作的类如：
 
-断，是一步到位的，例如 x=3 是原子性操作，而 y = x 就不是，它包含两步：第
+  AtomicInteger AtomicBoolean AtomicLong AtomicReference
 
-一读取 x，第二将 x 写入工作内存；x++也不是原子性操作，它包含三部，第
+- 可见性：指线程之间的可见性，既一个线程修改的状态对另一个线程是可见的。volatile 修饰可以保证可见性，它会保证修改的值会立即被更新到主存，所以对其他线程是可见的，普通的共享变量不能保证可见性，因为被修改后不会立即写入主存，何时被写入主存是不确定的，所以其他线程去读取的时候可能读到的还是旧值
 
-一，读取 x，第二，对 x 加 1，第三，写入内存。原子性操作的类如：
+- 有序性：Java 中的指令重排序（包括编译器重排序和运行期重排序）可以起到优化代码的作用，但是在多线程中会影响到并发执行的正确性，使用 volatile 可以保证有序性，禁止指令重排
 
-AtomicInteger AtomicBoolean AtomicLong AtomicReference
-
-- 可见性：指线程之间的可见性，既一个线程修改的状态对另一个线程是可见
-
-的。volatile 修饰可以保证可见性，它会保证修改的值会立即被更新到主存，所
-
-以对其他线程是可见的，普通的共享变量不能保证可见性，因为被修改后不会
-
-立即写入主存，何时被写入主存是不确定的，所以其他线程去读取的时候可能
-
-读到的还是旧值
-
-- 有序性：Java 中的指令重排序（包括编译器重排序和运行期重排序）可以起到
-
-优化代码的作用，但是在多线程中会影响到并发执行的正确性，使用 volatile 可
-
-以保证有序性，禁止指令重排
-
-- volatile 可以保证可见性 有序性，但是无法保证原子性，在某些情况下可以提
-
-供优于锁的性能和伸缩性，替代 sychronized 关键字简化代码，但是要严格遵循
-
-使用条件。
-
-
-
-#### 如何判断对象是否死亡（两种方法）。
-
-- 引用计数法
-
-  - 它是给每个对象中添加一个引用计数器, 然后每当有一个计数器引用它时, 这个计数器值就加1; 当引用失效时, 计数器的值就减1; 然后计数器为 0 的对象（任何时刻）都是不可能再被使用的. 垃圾回收器就可以进行回收.
-
-  - 优点:引用计数法的原理实现简单,	但效率比较低,  不过它大多数情况下都是个不错的算法, 例如微软的COM(component Object Model)技术, 使用ActionScript3的FlashPlayer,Python语言等领域都用了引用计数算法进行内存管理.
-
-  - 缺点:很难解决对象之间的相互循环引用的问题
-
--  可达性分析算法
-  在Java,C#,等语言中,都是通过可达性分析算法来判断对象是否存活.
-
-  - 思想:通过一系"GC Roots"的对象作为起始点,从这些节点开始向下搜索, 搜索走过的路径称为引用链,当一个对象到GC Roots没有任何引用链时,则证明此对象已经死亡(不可用)，可以进行回收
-
-![](https://img-blog.csdnimg.cn/20190814220752116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xxMTc1OTMzNjk1MA==,size_16,color_FFFFFF,t_70)
-
-Java 中，比如：
-
-1. 虚拟机栈中 (栈帧中的本地变量表) 引用的对象;
-
-2. 方法区中类静态属性引用的对象
-
-3. 方法区中常量引用0的对象
-
-4. 本地方法栈中JNI(即native方法)引用的对象
-   引用的分类:强引用,软引用,弱引用,虚引用
-
-都可以可作为GC Roots的对象。
-
-
-
-
-#### 简单的介绍一下强引用、软引用、弱引用、虚引用（虚引用与软引用和弱引用的区别、使用软引用能带来的好处）。
-
-- **1．强引用**
-
-  就是我们大部分使用引用一般都是强引用。如果一个对象使用强引用，那垃圾回收器就一定不会回收它。即使是内存空间不足的时候，Java 虚拟机宁愿抛出 OutOfMemoryError 错误，让我们的程序异常终止，也不会回收具有强引用的对象来解决内存不足问题
-
-- **2．软引用（SoftReference）**
-
-  如果一个对象是软引用，当内存空间足够，垃圾回收器不会回收它，但是一旦内存空间不够了，就会回收这些对象的内存。所以软引用可用来实现内存敏感的高速缓存，够的时候用，不够时释放。
-
-  （ 软引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收，JAVA 虚拟机就会把这个软引用加入到与之关联的引用队列中。）
-
-- **3．弱引用（WeakReference）**
-
-  弱引用类似于软引用。**弱引用与软引用的区别在于：弱引用的对象拥有更短暂的生命周期**。**在垃圾回收器线程扫描它 所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。**不过，由于垃圾回收器是一个优先级很低的线程， 因此不一定会很快发现那些只具有弱引用的对象。
-
-  （弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果弱引用所引用的对象被垃圾回收，Java 虚拟机就会把这个弱引用加入到与之关联的引用队列中。）
-
-- **4．虚引用（PhantomReference）**
-
-  “虚引用” 顾名思义，就是形同虚设，与其他几种引用都不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收。
-
-  虚引用主要用来跟踪对象被垃圾回收的活动。
-
-- **5．虚引用与软引用和弱引用的一个区别：**
-
-  虚引用必须和引用队列（ReferenceQueue）联合使用。当垃 圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是 否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要的行动。
-
-  特别注意，在程序设计中一般很少使用弱引用与虚引用，使用软引用的情况较多，这是因为软引用可以加速 JVM 对垃圾内存的回收速度，可以维护系统的运行安全，防止内存溢出（OutOfMemory）等问题的产生。
-
-![](https://img-blog.csdn.net/20180606220747457?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1bmp1bmJhMjY4OQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
-
-
-
-
-
-#### 如何判断一个常量是废弃常量
-
-- **运行时常量池主要回收的是废弃的常量。**那么，我们如何判断一个常量是废弃常量呢？
-
-- 假如在常量池中存在字符串 “abc”，如果当前没有任何 String 对象引用该字符串常量的话，就说明常量 “abc” 就是废弃常量，如果这时发生内存回收的话而且有必要的话，“abc” 就会被系统清理出常量池。
-
-- JDK1.7 及之后版本的 JVM 已经将运行时常量池从方法区中移了出来，在 Java 堆（Heap）中开辟了一块区域存放运行时常量池。
-
-
-
-#### 如何判断一个类是无用的类
-
-- 方法区主要是放类的 Class 文件的
-
-- 如果这个类所有的实例都已经被回收，那么 Java 堆中就不会存在该类的任何实例。
-
-- 然后加载该类的 ClassLoader 也已经被回收。
-
-- 该类的 java.lang.Class 对象没有在任何地方被引用，也无法在任何地方通过反射访问该类的方法。
-
-- 这几种情况都满足的话就可以回收，但不是一定会回收
+- volatile 可以保证可见性 有序性，但是无法保证原子性，在某些情况下可以提供优于锁的性能和伸缩性，替代 sychronized 关键字简化代码，但是要严格遵循使用条件。
 
 
 
@@ -548,7 +662,7 @@ G1 收集器在后台维护了一个优先列表，每次根据允许的收集�
 
 
 
-## 三、锁
+## 四、锁
 
 
 
@@ -574,7 +688,7 @@ G1 收集器在后台维护了一个优先列表，每次根据允许的收集�
 
 
 
-## 四、hashMap
+## 五、hashMap
 
 
 
@@ -982,7 +1096,7 @@ HashEntry跟HashMap差不多的，但是不同点是，他使用volatile去修�
 
 
 
-#### 线程池数量如何配置？
+#### 数量如何配置？
 
 - 任务性质：CPU密集，IO密集，和混合密集
 - 任务执行时间：长，中，低
@@ -1009,7 +1123,7 @@ W/C = 等待(wait)时间与计算(compute)时间的比率
 
 
 
-#### 线程池的状态有哪些？
+#### 状态有哪些？
 
 线程池的状态主要通过ctl属性来控制，通过ctl可以计算出：
 
@@ -1082,7 +1196,7 @@ private static int ctlOf(int rs, int wc) { return rs | wc; }
 
 
 
-#### 线程池提供的扩展方法有哪些？
+#### 扩展方法有哪些？
 
 默认有三个扩展方法，可以用来做一些线程池运行状态统计，监控：
 
@@ -1107,7 +1221,7 @@ private static int ctlOf(int rs, int wc) { return rs | wc; }
 
 
 
-#### 线程池中的Worker线程执行的过程？
+#### Worker线程执行的过程？
 
 Worker类实现了Runnable方法，**在成功创建Worker线程后就会调用其start方法。**
 
@@ -1184,7 +1298,7 @@ Worker线程运行时执行runWorker方法，里面主要事情：
 
 
 
-#### 线程池如何区分核心线程与非核心线程？
+#### 区分核心线程与非核心线程？
 
 实际上内部在创建线程时，并没有给线程做标记，因此无法区分核心线程与非核心线程。可以看出`addWorker()方法`。
 
@@ -1214,7 +1328,7 @@ workQueue.take()方法会一直阻塞当前的队列直到有任务的出现，�
 
 
 
-#### 如何提前创建核心线程数？
+#### 提前创建核心线程数？
 
 上面提到了，有两个方法：
 
@@ -1223,7 +1337,7 @@ workQueue.take()方法会一直阻塞当前的队列直到有任务的出现，�
 
 
 
-#### 线程池异常退出与自动退出的区别？
+#### 异常退出与自动退出的区别？
 
 如果线程是由于程序异常导致的退出，那么completedAbruptly为true，如下代码会再新建一个Worker线程。
 
@@ -1249,7 +1363,7 @@ int c = ctl.get();
 
 
 
-#### 线程池 shutdown 与 shutdownNow 有什么区别？
+#### shutdown 与 shutdownNow 有什么区别？
 
 看代码主要三个区别：
 
