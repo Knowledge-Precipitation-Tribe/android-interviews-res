@@ -350,7 +350,7 @@ int\float 占用 4 个字节，short\char 占用 2 个字节，long 占用 8 个
 
 
 
-#### ClassNotFound原因：
+#### ClassNotFound 原因
 
 - ABI异常：常见在系统APP，为了减小system分区大小会将apk源文件中的classes.dex文件移除，对于既然可运行在64位又可运行在32位模式的应用，当被强制设置32位时，openDexFileNative在查找不到oat文件时会运行在解释模式，而classes.dex文件不再则出现ClassNotFound异常。
 - MultiDex处理不当，由于每个Dex文件中方法个数不能超过65536，引入MultiDex机制。dex2oat会自动查找Apk文件中的classes.dex，classes2.dex，…classesN.dex等文件，编译到/data/dalvik-cache下生成oat文件。这里需要文件名跟classesN.dex格式，并且一定要与classes.dex一起放置在第一级目录，有些APP不按照要求来，导致ClassNotFound异常。
@@ -363,7 +363,7 @@ int\float 占用 4 个字节，short\char 占用 2 个字节，long 占用 8 个
 
 
 
-#### 如何判断对象是否死亡（两种方法）。
+#### 如何判断对象是否x死亡（两种方法）。
 
 - 引用计数法
 
