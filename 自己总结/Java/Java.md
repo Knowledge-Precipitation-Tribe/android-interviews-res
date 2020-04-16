@@ -690,15 +690,9 @@ G1 收集器在后台维护了一个优先列表，每次根据允许的收集�
 
 
 
-## 七、[线程池](https://juejin.im/post/5e435ac3f265da57537ea7ba#heading-1)
+## 五、[线程池](https://juejin.im/post/5e435ac3f265da57537ea7ba#heading-1)
 
 
-#### [CAS算法](https://blog.csdn.net/qq_34337272/article/details/81072874)
-
-- 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。CAS算法涉及到三个操作数
-  - 需要读写的内存值 V
-  - 进行比较的值 A
-  - 拟写入的新值 B
 
 
 #### 使用线程池有哪些好处？
